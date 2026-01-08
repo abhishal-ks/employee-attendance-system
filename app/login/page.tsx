@@ -1,20 +1,48 @@
-'use client'
+'use client';
 
 import { JSX, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import axios from 'axios'
+
+interface LoginResponse {
+    success: boolean
+    message: string
+}
 
 export default function Login(): JSX.Element {
     const [employeeId, setEmployeeId] = useState<string>('')
     const router = useRouter()
 
-    const login = (): void => {
+    const login = async (): Promise<void> => {
         if (!employeeId) {
             alert('Enter Employee ID')
             return
         }
 
-        localStorage.setItem('employeeId', employeeId)
-        router.push('/attendance')
+        try {
+            const res = await axios.post<LoginResponse>(
+                process.env.NEXT_PUBLIC_APPS_SCRIPT_URL as string,
+                JSON.stringify({
+                    type: 'LOGIN',
+                    employeeId,
+                }),
+                {
+                    headers: {
+                        'Content-Type': 'text/plain',
+                    },
+                }
+            );
+
+            if (!res.data.success) {
+                alert(res.data.message)
+                return
+            }
+
+            localStorage.setItem('employeeId', employeeId)
+            router.push('/attendance')
+        } catch {
+            alert('Login failed')
+        }
     }
 
     return (

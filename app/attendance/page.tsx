@@ -1,7 +1,8 @@
 'use client'
 
 import axios from 'axios'
-import { JSX } from 'react'
+import { useRouter } from 'next/navigation'
+import { JSX, useEffect } from 'react'
 
 // type AttendanceStatus = 'Present' | 'Late' | 'Absent'
 
@@ -14,7 +15,20 @@ interface AttendancePayload {
     status: 'Present'
 }
 
+interface ApiResponse {
+    success: boolean
+    message: string
+}
+
 export default function Attendance(): JSX.Element {
+    const router = useRouter()
+
+    useEffect(() => {
+        const employeeId = localStorage.getItem('employeeId')
+        if (!employeeId) {
+            router.push('/login')
+        }
+    }, [router])
 
     const markAttendance = async (): Promise<void> => {
         const employeeId = localStorage.getItem('employeeId')
@@ -35,18 +49,34 @@ export default function Attendance(): JSX.Element {
             status: 'Present',
         }
 
-        await axios.post(
-            process.env.NEXT_PUBLIC_APPS_SCRIPT_URL as string,
-            payload
-        )
+        try {
+            const res = await axios.post<ApiResponse>(
+                process.env.NEXT_PUBLIC_APPS_SCRIPT_URL as string,
+                JSON.stringify(payload),
+                {
+                    headers: {
+                        'Content-Type': 'text/plain',
+                    },
+                }
+            );
 
-        alert('Attendance marked successfully')
+            alert(res.data.message)
+        } catch (error) {
+            alert('Something went wrong')
+        }
     }
 
     return (
-        <div>
-            <h1>Mark Attendance</h1>
-            <button onClick={markAttendance}>
+        <div
+            className='w-fit mx-auto my-0.5 text-center'
+        >
+            <h1
+                className='text-2xl font-bold mb-4'
+            >Mark Attendance</h1>
+            <button
+                className='px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 hover:cursor-pointer'
+                onClick={markAttendance}
+            >
                 Mark Attendance
             </button>
         </div>
