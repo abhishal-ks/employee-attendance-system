@@ -11,6 +11,8 @@ interface LoginResponse {
 
 export default function Login(): JSX.Element {
     const [employeeId, setEmployeeId] = useState<string>('')
+    const [loading, setLoading] = useState(false)
+
     const router = useRouter()
 
     const login = async (): Promise<void> => {
@@ -18,6 +20,8 @@ export default function Login(): JSX.Element {
             alert('Enter Employee ID')
             return
         }
+
+        setLoading(true);
 
         try {
             const res = await axios.post<LoginResponse>(
@@ -42,21 +46,38 @@ export default function Login(): JSX.Element {
             router.push('/attendance')
         } catch {
             alert('Login failed')
+        } finally {
+            setLoading(false);
         }
     }
 
     return (
-        <div>
-            <h1>Smart Business Login</h1>
+        <div className="min-h-screen flex items-center justify-center">
+            <div className="p-8 rounded-lg shadow-md w-full max-w-sm">
+                <h1 className="text-4xl font-semibold text-center mb-9">
+                    Smart Vyapaar Attendance Login
+                </h1>
 
-            <input
-                type="text"
-                placeholder="Employee ID"
-                value={employeeId}
-                onChange={(e) => setEmployeeId(e.target.value)}
-            />
+                <p className='text-center mb-6'>
+                    Login to mark your Smart Vyapaar Attendance
+                </p>
 
-            <button onClick={login}>Login</button>
+                <input
+                    type="text"
+                    placeholder="Employee ID"
+                    value={employeeId}
+                    onChange={(e) => setEmployeeId(e.target.value)}
+                    className="w-full border border-gray-300 rounded px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+
+                <button
+                    onClick={login}
+                    disabled={loading}
+                    className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-60"
+                >
+                    {loading ? 'Logging in...' : 'Login'}
+                </button>
+            </div>
         </div>
     )
 }

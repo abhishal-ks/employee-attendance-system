@@ -2,7 +2,7 @@
 
 import axios from 'axios'
 import { useRouter } from 'next/navigation'
-import { JSX, useEffect } from 'react'
+import { JSX, useEffect, useState } from 'react'
 
 // type AttendanceStatus = 'Present' | 'Late' | 'Absent'
 
@@ -23,6 +23,9 @@ interface ApiResponse {
 export default function Attendance(): JSX.Element {
     const router = useRouter()
 
+    const [loading, setLoading] = useState(false);
+    const [marked, setMarked] = useState(false);
+
     useEffect(() => {
         const employeeId = localStorage.getItem('employeeId')
         if (!employeeId) {
@@ -33,10 +36,9 @@ export default function Attendance(): JSX.Element {
     const markAttendance = async (): Promise<void> => {
         const employeeId = localStorage.getItem('employeeId')
 
-        if (!employeeId) {
-            alert('Not logged in')
-            return
-        }
+        if (!employeeId) return
+
+        setLoading(true);
 
         const now = new Date()
 
@@ -61,24 +63,45 @@ export default function Attendance(): JSX.Element {
             );
 
             alert(res.data.message)
+
+            if (res.data.success) setMarked(true);
+
         } catch (error) {
-            alert('Something went wrong')
+            alert('Failed to mark attendance')
+        } finally {
+            setLoading(false);
         }
     }
 
     return (
-        <div
-            className='w-fit mx-auto my-0.5 text-center'
-        >
-            <h1
-                className='text-2xl font-bold mb-4'
-            >Mark Attendance</h1>
-            <button
-                className='px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 hover:cursor-pointer'
-                onClick={markAttendance}
-            >
-                Mark Attendance
-            </button>
+        <div className="min-h-screen flex items-center justify-center">
+            <div className="p-8 rounded-lg shadow-md w-full max-w-sm text-center">
+                <h1 className="text-4xl font-semibold mb-9">
+                    Smart Vyapaar Attendance
+                </h1>
+
+                <p className='text-gray-300 mb-2'>Mark your attendance for </p>
+                <p className="mb-6 text-lg">
+                    {new Date().toDateString()}
+                </p>
+
+                <button
+                    onClick={markAttendance}
+                    disabled={loading || marked}
+                    className={`w-full py-3 rounded transition
+                        ${marked
+                            ? 'bg-green-600'
+                            : 'bg-blue-600 hover:bg-blue-700'
+                        }
+                        disabled:opacity-60`}
+                >
+                    {marked
+                        ? 'Attendance Marked'
+                        : loading
+                            ? 'Marking...'
+                            : 'Mark Attendance'}
+                </button>
+            </div>
         </div>
     )
 }
