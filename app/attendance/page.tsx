@@ -1,6 +1,7 @@
 'use client'
 
 import axios from 'axios'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { JSX, useEffect, useState } from 'react'
 
@@ -76,11 +77,20 @@ export default function Attendance(): JSX.Element {
     return (
         <div className="min-h-screen flex items-center justify-center">
             <div className="p-8 rounded-lg shadow-md w-full max-w-sm text-center">
+                <div className="flex justify-center relative w-44 h-32 mx-auto mb-6">
+                    <Image
+                        src="/s-vyapaar.jpeg"
+                        alt="Smart Vyapaar Logo"
+                        fill
+                        className="mx-auto mb-4"
+                    />
+                </div>
                 <h1 className="text-4xl font-semibold mb-9">
-                    Smart Vyapaar Attendance
+                    <span className='text-[rgba(32,70,121,1)]'>Smart</span>&nbsp;
+                    <span className='text-[rgba(235,50,58,1)]'>Vyapaar</span> Attendance
                 </h1>
 
-                <p className='text-gray-300 mb-2'>Mark your attendance for </p>
+                <p className='text-gray-800 mb-2'>Mark your attendance for </p>
                 <p className="mb-6 text-lg">
                     {new Date().toDateString()}
                 </p>
@@ -88,7 +98,7 @@ export default function Attendance(): JSX.Element {
                 <button
                     onClick={markAttendance}
                     disabled={loading || marked}
-                    className={`w-full py-3 rounded transition
+                    className={`w-full text-white py-3 rounded transition
                         ${marked
                             ? 'bg-green-600'
                             : 'bg-blue-600 hover:bg-blue-700'

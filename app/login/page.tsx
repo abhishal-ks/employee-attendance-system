@@ -3,6 +3,7 @@
 import { JSX, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
+import Image from 'next/image';
 
 interface LoginResponse {
     success: boolean
@@ -54,8 +55,17 @@ export default function Login(): JSX.Element {
     return (
         <div className="min-h-screen flex items-center justify-center">
             <div className="p-8 rounded-lg shadow-md w-full max-w-sm">
+                <div className="flex justify-center relative w-44 h-32 mx-auto mb-6">
+                    <Image
+                        src="/s-vyapaar.jpeg"
+                        alt="Smart Vyapaar Logo"
+                        fill
+                        className="mx-auto mb-4"
+                    />
+                </div>
                 <h1 className="text-4xl font-semibold text-center mb-9">
-                    Smart Vyapaar Attendance Login
+                    <span className='text-[rgba(32,70,121,1)]'>Smart</span>&nbsp;
+                    <span className='text-[rgba(235,50,58,1)]'>Vyapaar</span> Attendance Login
                 </h1>
 
                 <p className='text-center mb-6'>
