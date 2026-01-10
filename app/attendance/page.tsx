@@ -11,7 +11,6 @@ interface AttendancePayload {
     type: 'Attendance'
     date: string
     employeeId: string
-    name: string
     checkIn: string
     status: 'Present'
 }
@@ -21,18 +20,47 @@ interface ApiResponse {
     message: string
 }
 
+interface WhoAmIResponse {
+    success: boolean;
+    employeeId?: string;
+    name?: string;
+    message?: string;
+}
+
 export default function Attendance(): JSX.Element {
     const router = useRouter()
+
+    const [employeeId, setEmployeeId] = useState<string | null>(null)
+    const [name, setName] = useState<string | null>(null)
 
     const [loading, setLoading] = useState(false);
     const [marked, setMarked] = useState(false);
 
+    // 🔐 Auth + fetch user info
     useEffect(() => {
-        const employeeId = localStorage.getItem('employeeId')
-        if (!employeeId) {
+        const id = localStorage.getItem('employeeId')
+        if (!id) {
             router.push('/login')
+            return
         }
+
+        setEmployeeId(id)
+
+        axios.post<WhoAmIResponse>(
+            process.env.NEXT_PUBLIC_APPS_SCRIPT_URL as string,
+            JSON.stringify({ type: 'WHOAMI', employeeId: id }),
+            { headers: { 'Content-Type': 'text/plain' } }
+        ).then(res => {
+            if (res.data.success) setName(res.data.name || '')
+        });
+
     }, [router])
+
+    // 🚪 Logout
+    const logout = () => {
+        localStorage.removeItem('employeeId')
+        router.push('/login')
+    }
 
     const markAttendance = async (): Promise<void> => {
         const employeeId = localStorage.getItem('employeeId')
@@ -47,7 +75,6 @@ export default function Attendance(): JSX.Element {
             type: 'Attendance',
             date: now.toISOString().split('T')[0],
             employeeId,
-            name: employeeId,
             checkIn: now.toLocaleTimeString(),
             status: 'Present',
         }
@@ -77,6 +104,21 @@ export default function Attendance(): JSX.Element {
     return (
         <div className="min-h-screen flex items-center justify-center">
             <div className="p-8 rounded-lg shadow-md w-full max-w-sm text-center">
+
+                <div className="absolute top-4 right-4 text-sm text-gray-600 flex items-center gap-3">
+                    <span>
+                        Logged in as <strong>{employeeId}</strong>
+                        {name && ` (${name})`}
+                    </span>
+
+                    <button
+                        onClick={logout}
+                        className="text-red-600 hover:underline"
+                    >
+                        Logout
+                    </button>
+                </div>
+
                 <div className="flex justify-center relative w-44 h-32 mx-auto mb-6">
                     <Image
                         src="/s-vyapaar.jpeg"
