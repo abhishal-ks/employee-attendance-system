@@ -13,6 +13,8 @@ interface AttendancePayload {
     employeeId: string
     checkIn: string
     status: 'Present'
+    latitude: number
+    longitude: number
 }
 
 interface ApiResponse {
@@ -62,24 +64,53 @@ export default function Attendance(): JSX.Element {
         router.push('/login')
     }
 
+    const getLocation = (): Promise<{ lat: number; lng: number }> => {
+        return new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+                reject(new Error('Geolocation is not supported by your browser'))
+                return
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    resolve({
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    })
+                },
+                (error) => {
+                    reject(error)
+                },
+                {
+                    enableHighAccuracy: false,
+                    timeout: 10000
+                }
+            )
+        })
+    }
+
     const markAttendance = async (): Promise<void> => {
         const employeeId = localStorage.getItem('employeeId')
-
         if (!employeeId) return
 
         setLoading(true);
 
-        const now = new Date()
-
-        const payload: AttendancePayload = {
-            type: 'Attendance',
-            date: now.toISOString().split('T')[0],
-            employeeId,
-            checkIn: now.toLocaleTimeString(),
-            status: 'Present',
-        }
-
         try {
+            // 📍 Get location
+            const location = await getLocation()
+
+            const now = new Date()
+
+            const payload: AttendancePayload = {
+                type: 'Attendance',
+                date: now.toISOString().split('T')[0],
+                employeeId,
+                checkIn: now.toLocaleTimeString(),
+                status: 'Present',
+                latitude: location.lat,
+                longitude: location.lng
+            }
+
             const res = await axios.post<ApiResponse>(
                 process.env.NEXT_PUBLIC_APPS_SCRIPT_URL as string,
                 JSON.stringify(payload),
@@ -94,10 +125,10 @@ export default function Attendance(): JSX.Element {
 
             if (res.data.success) setMarked(true);
 
-        } catch (error) {
-            alert('Failed to mark attendance')
+        } catch (err: any) {
+            alert('Location permission is required to mark attendance')
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
     }
 
