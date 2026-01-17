@@ -8,11 +8,14 @@ export default function Home(): null {
 
   useEffect(() => {
     const employeeId = localStorage.getItem('employeeId');
+    const isAdmin = localStorage.getItem('isAdmin')
 
-    if (employeeId) {
-      router.replace('/attendance');
-    } else {
+    if (!employeeId) {
       router.replace('/login');
+    } else if (isAdmin === 'true') {
+      router.replace('/admin');
+    } else {
+      router.replace('/dashboard');
     }
   }, [router]);
 

@@ -8,6 +8,7 @@ import Image from 'next/image';
 interface LoginResponse {
     success: boolean
     message: string
+    role: 'admin' | 'employee'
 }
 
 export default function Login(): JSX.Element {
@@ -43,8 +44,16 @@ export default function Login(): JSX.Element {
                 return
             }
 
-            localStorage.setItem('employeeId', employeeId)
-            router.push('/attendance')
+            // ✅ Persist session
+            localStorage.setItem('employeeId', employeeId);
+
+            if (res.data.role === 'admin') {
+                localStorage.setItem('isAdmin', 'true');
+                router.push('/admin');
+            } else {
+                localStorage.removeItem('isAdmin');
+                router.push('/dashboard');
+            }
         } catch {
             alert('Login failed')
         } finally {

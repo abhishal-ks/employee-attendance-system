@@ -85,7 +85,7 @@ export default function Dashboard(): JSX.Element {
                     {/* Add Client */}
                     <button
                         onClick={() => router.push('/dashboard/add-client')}
-                        className="bg-white p-6 rounded-lg shadow hover:shadow-md text-left"
+                        className="bg-white p-6 rounded-lg shadow hover:shadow-md text-left cursor-pointer"
                     >
                         <h2 className="text-lg font-semibold mb-1">
                             ➕ Add Business Client
@@ -98,7 +98,7 @@ export default function Dashboard(): JSX.Element {
                     {/* My Clients */}
                     <button
                         onClick={() => router.push('/dashboard/clients')}
-                        className="bg-white p-6 rounded-lg shadow hover:shadow-md text-left"
+                        className="bg-white p-6 rounded-lg shadow hover:shadow-md text-left cursor-pointer"
                     >
                         <h2 className="text-lg font-semibold mb-1">
                             📋 My Clients
@@ -111,7 +111,7 @@ export default function Dashboard(): JSX.Element {
                     {/* Attendance */}
                     <button
                         onClick={() => router.push('/attendance')}
-                        className="bg-white p-6 rounded-lg shadow hover:shadow-md text-left"
+                        className="bg-white p-6 rounded-lg shadow hover:shadow-md text-left cursor-pointer"
                     >
                         <h2 className="text-lg font-semibold mb-1">
                             🕒 Attendance
