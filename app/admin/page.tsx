@@ -73,6 +73,7 @@ export default function AdminPanel(): JSX.Element {
                             <tr>
                                 <th className="px-4 py-3 text-left">Business</th>
                                 <th className="px-4 py-3 text-left">Employee</th>
+                                <th className="px-4 py-3 text-left">Client ID</th>
                                 <th className="px-4 py-3 text-left">Industry</th>
                                 <th className="px-4 py-3 text-left">Location</th>
                                 <th className="px-4 py-3 text-left">Status</th>
@@ -86,6 +87,7 @@ export default function AdminPanel(): JSX.Element {
                                         {c.businessName}
                                     </td>
                                     <td className="px-4 py-3">{c.employeeId}</td>
+                                    <td className="px-4 py-3">{c.clientId}</td>
                                     <td className="px-4 py-3">{c.industry}</td>
                                     <td className="px-4 py-3">{c.location}</td>
                                     <td className="px-4 py-3">

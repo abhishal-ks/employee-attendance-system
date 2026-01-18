@@ -11,6 +11,7 @@ interface Client {
     location: string
     status: string
     updatedAt: string
+    description?: string
 }
 
 
@@ -30,7 +31,11 @@ export default function MyClients(): JSX.Element {
         'Not Interested',
     ]
 
-    const updateStatus = async (clientId: string, status: string) => {
+    const updateStatus = async (
+        clientId: string,
+        status: string,
+        description?: string
+    ) => {
         const employeeId = localStorage.getItem('employeeId')
         if (!employeeId) return
 
@@ -42,6 +47,7 @@ export default function MyClients(): JSX.Element {
                     clientId,
                     employeeId,
                     status,
+                    description
                 }),
                 { headers: { 'Content-Type': 'text/plain' } }
             )
@@ -121,6 +127,7 @@ export default function MyClients(): JSX.Element {
                                     <th className="px-4 py-3 text-left">Industry</th>
                                     <th className="px-4 py-3 text-left">Location</th>
                                     <th className="px-4 py-3 text-left">Status</th>
+                                    <th className="px-4 py-3 text-left">Description / Notes</th>
                                     <th className="px-4 py-3 text-left">Updated</th>
                                 </tr>
                             </thead>
@@ -144,6 +151,30 @@ export default function MyClients(): JSX.Element {
                                                     ))}
                                                 </select>
                                             </div>
+                                        </td>
+                                        <td className="px-4 py-3" colSpan={5}>
+                                            <textarea
+                                                className="w-full border rounded px-2 py-1 text-xs"
+                                                placeholder="Client description / notes"
+                                                value={c.description || ''}
+                                                onChange={(e) =>
+                                                    setClients(prev =>
+                                                        prev.map(p =>
+                                                            p.clientId === c.clientId
+                                                                ? { ...p, description: e.target.value }
+                                                                : p
+                                                        )
+                                                    )
+                                                }
+                                            />
+                                            <button
+                                                onClick={() =>
+                                                    updateStatus(c.clientId, c.status, c.description || '')
+                                                }
+                                                className="mt-1 text-xs text-blue-600 hover:underline"
+                                            >
+                                                Save description
+                                            </button>
                                         </td>
                                         <td className="px-4 py-3 text-gray-500">
                                             {c.updatedAt}
