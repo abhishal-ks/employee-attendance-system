@@ -1,8 +1,35 @@
 'use client'
 
+// 1️⃣ Normal imports
 import { JSX, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
+import { useMap } from 'react-leaflet'
+
+// 2️⃣ Leaflet + CSS
+import 'leaflet/dist/leaflet.css'
+import { fixLeafletIcons } from '@/lib/leafletIconFix'
+
+// 3️⃣ Next dynamic import
+import dynamic from 'next/dynamic'
+
+// 4️⃣ 🔑 DYNAMIC IMPORTS
+const MapContainer = dynamic(
+    () => import('react-leaflet').then(m => m.MapContainer),
+    { ssr: false }
+)
+const TileLayer = dynamic(
+    () => import('react-leaflet').then(m => m.TileLayer),
+    { ssr: false }
+)
+const Marker = dynamic(
+    () => import('react-leaflet').then(m => m.Marker),
+    { ssr: false }
+)
+const Popup = dynamic(
+    () => import('react-leaflet').then(m => m.Popup),
+    { ssr: false }
+)
 
 interface Client {
     clientId: string
@@ -12,12 +39,32 @@ interface Client {
     location: string
     status: string
     updatedAt: string
+    latitude?: string
+    longitude?: string
+}
+
+function FixMapSize() {
+    const map = useMap()
+
+    useEffect(() => {
+        setTimeout(() => {
+            map.invalidateSize()
+        }, 100)
+    }, [map])
+
+    return null
 }
 
 export default function AdminPanel(): JSX.Element {
     const router = useRouter()
     const [clients, setClients] = useState<Client[]>([])
     const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            fixLeafletIcons()
+        }
+    }, [])
 
     useEffect(() => {
         const employeeId = localStorage.getItem('employeeId')
@@ -53,6 +100,22 @@ export default function AdminPanel(): JSX.Element {
         )
     }
 
+    const clientsWithGPS = clients.filter(
+        c =>
+            c.latitude &&
+            c.longitude &&
+            !isNaN(Number(c.latitude)) &&
+            !isNaN(Number(c.longitude))
+    )
+
+    const mapCenter: [number, number] =
+        clientsWithGPS.length > 0
+            ? [
+                Number(clientsWithGPS[0].latitude),
+                Number(clientsWithGPS[0].longitude),
+            ]
+            : [28.6139, 77.2090] // Delhi fallback
+
     return (
         <div className="min-h-screen bg-gray-100 px-6 py-8">
             <div className="max-w-6xl mx-auto">
@@ -68,6 +131,39 @@ export default function AdminPanel(): JSX.Element {
                 </div>
 
                 <div className="bg-white rounded shadow overflow-x-auto">
+
+                    {clientsWithGPS.length > 0 && (
+                        <div className="bg-white rounded shadow mb-6">
+                            <MapContainer
+                                center={mapCenter}
+                                zoom={6}
+                                style={{ height: '400px', width: '100%' }}
+                            >
+                                <TileLayer
+                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                    attribution="&copy; OpenStreetMap contributors"
+                                />
+
+                                {clientsWithGPS.map(c => (
+                                    <Marker
+                                        key={c.clientId}
+                                        position={[
+                                            Number(c.latitude),
+                                            Number(c.longitude),
+                                        ]}
+                                    >
+                                        <Popup>
+                                            <strong>{c.businessName}</strong><br />
+                                            Employee: {c.employeeId}<br />
+                                            Status: {c.status}<br />
+                                            Location: {c.location}
+                                        </Popup>
+                                    </Marker>
+                                ))}
+                            </MapContainer>
+                        </div>
+                    )}
+
                     <table className="w-full text-sm">
                         <thead className="bg-gray-50">
                             <tr>

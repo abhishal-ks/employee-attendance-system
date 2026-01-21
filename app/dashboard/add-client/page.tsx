@@ -15,6 +15,30 @@ const INDUSTRIES = [
     'Other',
 ]
 
+// 🔹 GPS HELPER
+const getGPSLocation = (): Promise<{ lat: number; lng: number }> => {
+    return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+            reject(new Error('Geolocation is not supported by your browser'))
+            return
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                resolve({
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                })
+            },
+            () => reject(new Error('Permission denied or unable to retrieve location')),
+            {
+                enableHighAccuracy: false,
+                timeout: 10000
+            }
+        )
+    })
+}
+
 export default function AddClient(): JSX.Element {
     const router = useRouter()
     const [loading, setLoading] = useState(false)
@@ -49,6 +73,19 @@ export default function AddClient(): JSX.Element {
 
         setLoading(true)
 
+        let latitude = ''
+        let longitude = ''
+
+        try {
+            const loc = await getGPSLocation()
+            latitude = String(loc.lat)
+            longitude = String(loc.lng)
+        } catch {
+            alert('Location permission is required to add client')
+            setLoading(false)
+            return
+        }
+
         try {
             const res = await axios.post(
                 process.env.NEXT_PUBLIC_APPS_SCRIPT_URL as string,
@@ -56,6 +93,8 @@ export default function AddClient(): JSX.Element {
                     type: 'ADD_CLIENT',
                     employeeId,
                     ...form,
+                    latitude,
+                    longitude
                 }),
                 { headers: { 'Content-Type': 'text/plain' } }
             )
