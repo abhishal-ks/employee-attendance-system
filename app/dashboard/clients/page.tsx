@@ -14,6 +14,36 @@ interface Client {
     description?: string
 }
 
+const resizeImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const img = new Image()
+        const reader = new FileReader()
+
+        reader.onload = e => {
+            img.src = e.target?.result as string
+        }
+
+        img.onload = () => {
+            const canvas = document.createElement('canvas')
+            const maxWidth = 1024
+
+            const scale = Math.min(1, maxWidth / img.width)
+            canvas.width = img.width * scale
+            canvas.height = img.height * scale
+
+            const ctx = canvas.getContext('2d')
+            if (!ctx) return reject()
+
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+
+            const base64 = canvas.toDataURL('image/jpeg', 0.7)
+            resolve(base64)
+        }
+
+        reader.onerror = reject
+        reader.readAsDataURL(file)
+    })
+}
 
 export default function MyClients(): JSX.Element {
     const router = useRouter()
@@ -78,11 +108,17 @@ export default function MyClients(): JSX.Element {
         axios
             .post(
                 process.env.NEXT_PUBLIC_APPS_SCRIPT_URL as string,
+                // {
+                //     params: {
+                //         type: 'GET_MY_CLIENTS',
+                //         employeeId,
+                //     }
+                // }
                 JSON.stringify({
                     type: 'GET_MY_CLIENTS',
                     employeeId,
                 }),
-                { headers: { 'Content-Type': 'text/plain' } }
+                // { headers: { 'Content-Type': 'text/plain' } }
             )
             .then((res) => {
                 if (res.data.success) {
@@ -91,6 +127,42 @@ export default function MyClients(): JSX.Element {
             })
             .finally(() => setLoading(false))
     }, [router])
+
+    const uploadClientImage = async (
+        clientId: string,
+        file?: File
+    ) => {
+        if (!file) return
+
+        const employeeId = localStorage.getItem('employeeId')
+        if (!employeeId) return
+
+        try {
+            const base64 = await resizeImage(file)
+
+            const res = await fetch(
+                process.env.NEXT_PUBLIC_APPS_SCRIPT_URL as string,
+                {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        type: 'UPLOAD_CLIENT_IMAGE',
+                        clientId,
+                        employeeId,
+                        base64,
+                    }),
+                    headers: {
+                        'Content-Type': 'text/plain',
+                    },
+                }
+            )
+
+            const data = await res.json()
+            alert(data.message)
+
+        } catch (err) {
+            alert('Image upload failed')
+        }
+    }
 
     if (loading) {
         return (
@@ -127,6 +199,7 @@ export default function MyClients(): JSX.Element {
                                     <th className="px-4 py-3 text-left">Industry</th>
                                     <th className="px-4 py-3 text-left">Location</th>
                                     <th className="px-4 py-3 text-left">Status</th>
+                                    <th className="px-4 py-3 text-left">Image</th>
                                     <th className="px-4 py-3 text-left">Description / Notes</th>
                                     <th className="px-4 py-3 text-left">Updated</th>
                                 </tr>
@@ -151,6 +224,16 @@ export default function MyClients(): JSX.Element {
                                                     ))}
                                                 </select>
                                             </div>
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                capture="environment"
+                                                onChange={(e) =>
+                                                    uploadClientImage(c.clientId, e.target.files?.[0])
+                                                }
+                                            />
                                         </td>
                                         <td className="px-4 py-3" colSpan={5}>
                                             <textarea

@@ -78,11 +78,17 @@ export default function AdminPanel(): JSX.Element {
         axios
             .post(
                 process.env.NEXT_PUBLIC_APPS_SCRIPT_URL as string,
+                // {
+                //     params: {
+                //         type: 'GET_ALL_CLIENTS_ADMIN',
+                //         employeeId,
+                //     }
+                // }
                 JSON.stringify({
                     type: 'GET_ALL_CLIENTS_ADMIN',
                     employeeId,
                 }),
-                { headers: { 'Content-Type': 'text/plain' } }
+                // { headers: { 'Content-Type': 'text/plain' } }
             )
             .then((res) => {
                 if (res.data.success) {

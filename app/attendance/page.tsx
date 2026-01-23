@@ -50,8 +50,14 @@ export default function Attendance(): JSX.Element {
 
         axios.post<WhoAmIResponse>(
             process.env.NEXT_PUBLIC_APPS_SCRIPT_URL as string,
+            // {
+            //     params: {
+            //         type: 'WHOAMI',
+            //         employeeId: id,
+            //     }
+            // }
             JSON.stringify({ type: 'WHOAMI', employeeId: id }),
-            { headers: { 'Content-Type': 'text/plain' } }
+            // { headers: { 'Content-Type': 'text/plain' } }
         ).then(res => {
             if (res.data.success) setName(res.data.name || '')
         });
