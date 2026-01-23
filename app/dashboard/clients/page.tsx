@@ -12,6 +12,7 @@ interface Client {
     status: string
     updatedAt: string
     description?: string
+    imageUrl?: string
 }
 
 const resizeImage = (file: File): Promise<string> => {
@@ -49,6 +50,7 @@ export default function MyClients(): JSX.Element {
     const router = useRouter()
     const [clients, setClients] = useState<Client[]>([])
     const [loading, setLoading] = useState(true)
+    const [uploadingId, setUploadingId] = useState<string | null>(null)
 
     const STATUS_OPTIONS = [
         'Lead Generated',
@@ -128,41 +130,47 @@ export default function MyClients(): JSX.Element {
             .finally(() => setLoading(false))
     }, [router])
 
-    const uploadClientImage = async (
-        clientId: string,
-        file?: File
-    ) => {
+    const uploadClientImage = async (clientId: string, file?: File) => {
         if (!file) return
 
         const employeeId = localStorage.getItem('employeeId')
         if (!employeeId) return
 
         try {
+            setUploadingId(clientId)
+
             const base64 = await resizeImage(file)
 
             const res = await fetch(
                 process.env.NEXT_PUBLIC_APPS_SCRIPT_URL as string,
                 {
                     method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
                     body: JSON.stringify({
                         type: 'UPLOAD_CLIENT_IMAGE',
                         clientId,
                         employeeId,
                         base64,
                     }),
-                    headers: {
-                        'Content-Type': 'text/plain',
-                    },
                 }
             )
 
             const data = await res.json()
-            alert(data.message)
 
-        } catch (err) {
-            alert('Image upload failed')
+            if (data.success) {
+                // re-fetch clients OR optimistically update image URL if returned
+                // simplest: reload list
+                const r = await axios.post(
+                    process.env.NEXT_PUBLIC_APPS_SCRIPT_URL as string,
+                    JSON.stringify({ type: 'GET_MY_CLIENTS', employeeId })
+                )
+                if (r.data.success) setClients(r.data.clients || [])
+            }
+        } finally {
+            setUploadingId(null)
         }
     }
+
 
     if (loading) {
         return (
@@ -225,7 +233,7 @@ export default function MyClients(): JSX.Element {
                                                 </select>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-3">
+                                        {/* <td className="px-4 py-3">
                                             <input
                                                 type="file"
                                                 accept="image/*"
@@ -234,6 +242,35 @@ export default function MyClients(): JSX.Element {
                                                     uploadClientImage(c.clientId, e.target.files?.[0])
                                                 }
                                             />
+                                        </td> */}
+                                        <td className="px-4 py-3">
+                                            <div className="flex flex-col gap-2">
+                                                {c.imageUrl ? (
+                                                    <a href={c.imageUrl} target="_blank" rel="noopener noreferrer">
+                                                        <img
+                                                            src={c.imageUrl}
+                                                            alt="Client"
+                                                            className="h-16 w-24 object-cover rounded border hover:opacity-90"
+                                                        />
+                                                    </a>
+                                                ) : (
+                                                    <span className="text-xs text-gray-400">No image</span>
+                                                )}
+
+                                                <label className="text-xs text-blue-600 cursor-pointer hover:underline">
+                                                    {uploadingId === c.clientId ? 'Uploading…' : 'Upload / Replace'}
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        capture="environment"
+                                                        className="hidden"
+                                                        disabled={uploadingId === c.clientId}
+                                                        onChange={(e) =>
+                                                            uploadClientImage(c.clientId, e.target.files?.[0])
+                                                        }
+                                                    />
+                                                </label>
+                                            </div>
                                         </td>
                                         <td className="px-4 py-3" colSpan={5}>
                                             <textarea
