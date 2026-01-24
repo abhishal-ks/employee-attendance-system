@@ -59,6 +59,10 @@ export default function AdminPanel(): JSX.Element {
     const router = useRouter()
     const [clients, setClients] = useState<Client[]>([])
     const [loading, setLoading] = useState(true)
+    // Filter and search states
+    const [statusFilter, setStatusFilter] = useState<string>('ALL')
+    const [employeeFilter, setEmployeeFilter] = useState<string>('ALL')
+    const [search, setSearch] = useState('')
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -78,17 +82,10 @@ export default function AdminPanel(): JSX.Element {
         axios
             .post(
                 process.env.NEXT_PUBLIC_APPS_SCRIPT_URL as string,
-                // {
-                //     params: {
-                //         type: 'GET_ALL_CLIENTS_ADMIN',
-                //         employeeId,
-                //     }
-                // }
                 JSON.stringify({
                     type: 'GET_ALL_CLIENTS_ADMIN',
                     employeeId,
                 }),
-                // { headers: { 'Content-Type': 'text/plain' } }
             )
             .then((res) => {
                 if (res.data.success) {
@@ -97,6 +94,31 @@ export default function AdminPanel(): JSX.Element {
             })
             .finally(() => setLoading(false))
     }, [router])
+
+    // Derived stats
+    const totalClients = clients.length
+    const convertedClients = clients.filter(c => c.status === 'Converted').length
+    const activeClients = clients.filter(
+        c => c.status !== 'Not Interested'
+    ).length
+
+    const uniqueEmployees = Array.from(
+        new Set(clients.map(c => c.employeeId))
+    )
+
+    // Filtering logic
+    const filteredClients = clients.filter(c => {
+        const matchStatus =
+            statusFilter === 'ALL' || c.status === statusFilter
+
+        const matchEmployee =
+            employeeFilter === 'ALL' || c.employeeId === employeeFilter
+
+        const matchSearch =
+            c.businessName.toLowerCase().includes(search.toLowerCase())
+
+        return matchStatus && matchEmployee && matchSearch
+    })
 
     if (loading) {
         return (
@@ -170,7 +192,69 @@ export default function AdminPanel(): JSX.Element {
                         </div>
                     )}
 
+                    <div className="bg-white rounded shadow p-4 mb-4 flex flex-wrap gap-4 items-center">
+                        {/* Search */}
+                        <input
+                            type="text"
+                            placeholder="Search business…"
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            className="border rounded px-3 py-1 text-sm"
+                        />
+
+                        {/* Status Filter */}
+                        <select
+                            value={statusFilter}
+                            onChange={e => setStatusFilter(e.target.value)}
+                            className="border rounded px-3 py-1 text-sm"
+                        >
+                            <option value="ALL">All Status</option>
+                            <option value="Lead Generated">Lead Generated</option>
+                            <option value="Contacted">Contacted</option>
+                            <option value="Meeting Scheduled">Meeting Scheduled</option>
+                            <option value="Proposal Sent">Proposal Sent</option>
+                            <option value="Negotiation">Negotiation</option>
+                            <option value="Converted">Converted</option>
+                            <option value="Follow-up Required">Follow-up Required</option>
+                            <option value="Not Interested">Not Interested</option>
+                        </select>
+
+                        {/* Employee Filter */}
+                        <select
+                            value={employeeFilter}
+                            onChange={e => setEmployeeFilter(e.target.value)}
+                            className="border rounded px-3 py-1 text-sm"
+                        >
+                            <option value="ALL">All Employees</option>
+                            {uniqueEmployees.map(emp => (
+                                <option key={emp} value={emp}>
+                                    {emp}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                        <div className="bg-white rounded shadow p-4">
+                            <p className="text-xs text-gray-500">Total Clients</p>
+                            <p className="text-2xl font-semibold">{totalClients}</p>
+                        </div>
+
+                        <div className="bg-white rounded shadow p-4">
+                            <p className="text-xs text-gray-500">Active Clients</p>
+                            <p className="text-2xl font-semibold">{activeClients}</p>
+                        </div>
+
+                        <div className="bg-white rounded shadow p-4">
+                            <p className="text-xs text-gray-500">Converted</p>
+                            <p className="text-2xl font-semibold text-green-600">
+                                {convertedClients}
+                            </p>
+                        </div>
+                    </div>
+
                     <table className="w-full text-sm">
+
                         <thead className="bg-gray-50">
                             <tr>
                                 <th className="px-4 py-3 text-left">Business</th>
@@ -183,7 +267,7 @@ export default function AdminPanel(): JSX.Element {
                             </tr>
                         </thead>
                         <tbody>
-                            {clients.map((c) => (
+                            {filteredClients.map((c) => (
                                 <tr key={c.clientId} className="border-t">
                                     <td className="px-4 py-3 font-medium">
                                         {c.businessName}
