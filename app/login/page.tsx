@@ -28,21 +28,10 @@ export default function Login(): JSX.Element {
         try {
             const res = await axios.post<LoginResponse>(
                 process.env.NEXT_PUBLIC_APPS_SCRIPT_URL as string,
-                // {
-                //     params: {
-                //         type: 'LOGIN',
-                //         employeeId,
-                //     }
-                // }
                 JSON.stringify({
                     type: 'LOGIN',
                     employeeId,
                 }),
-                // {
-                //     headers: {
-                //         'Content-Type': 'text/plain',
-                //     },
-                // }
             );
 
             if (!res.data.success) {
@@ -52,6 +41,8 @@ export default function Login(): JSX.Element {
 
             // ✅ Persist session
             localStorage.setItem('employeeId', employeeId);
+
+            localStorage.setItem('role', res.data.role)
 
             if (res.data.role === 'admin') {
                 localStorage.setItem('isAdmin', 'true');
