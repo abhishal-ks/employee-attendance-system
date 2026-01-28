@@ -12,6 +12,7 @@ import { fixLeafletIcons } from '@/lib/leafletIconFix'
 
 // 3️⃣ Next dynamic import
 import dynamic from 'next/dynamic'
+import AdminTopBar from '@/components/AdminTopBar'
 
 // 4️⃣ 🔑 DYNAMIC IMPORTS
 const MapContainer = dynamic(
@@ -129,8 +130,14 @@ export default function AdminPanel(): JSX.Element {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center text-gray-500">
-                Loading admin panel...
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+                <AdminTopBar />
+                <div className="flex items-center justify-center h-96">
+                    <div className="text-center">
+                        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                        <p className="mt-4 text-slate-600">Loading clients...</p>
+                    </div>
+                </div>
             </div>
         )
     }
@@ -152,21 +159,26 @@ export default function AdminPanel(): JSX.Element {
             : [28.6139, 77.2090] // Delhi fallback
 
     return (
-        <div className="min-h-screen bg-gray-100 px-6 py-8">
-            <div className="max-w-6xl mx-auto">
-                <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-xl font-semibold">Admin Panel</h1>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+            <AdminTopBar />
+            
+            <div className="max-w-7xl mx-auto px-4 py-8">
+                <div className="flex justify-between items-center mb-8">
+                    <div>
+                        <h1 className="text-3xl font-bold text-slate-900">Client Management</h1>
+                        <p className="text-slate-600 mt-1">View and manage all business clients</p>
+                    </div>
 
                     <button
                         onClick={() => router.push('/admin')}
-                        className="text-sm text-blue-600 hover:underline"
+                        className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors duration-300 text-sm font-medium"
                     >
                         ← Back to Admin
                     </button>
                 </div>
 
                 {clientsWithGPS.length > 0 && (
-                    <div className="bg-white rounded shadow mb-6">
+                    <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-200 mb-8">
                         <MapContainer
                             center={mapCenter}
                             zoom={6}
@@ -197,102 +209,111 @@ export default function AdminPanel(): JSX.Element {
                     </div>
                 )}
 
-                <div className="bg-white rounded shadow p-4 mb-4 flex flex-wrap gap-4 items-center">
-                    {/* Search */}
-                    <input
-                        type="text"
-                        placeholder="Search business…"
-                        value={search}
-                        onChange={e => setSearch(e.target.value)}
-                        className="border rounded px-3 py-1 text-sm"
-                    />
+                <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 mb-8">
+                    <h2 className="text-lg font-bold text-slate-900 mb-4">Filters</h2>
+                    <div className="flex flex-wrap gap-4">
+                        <div className="flex-1 min-w-64">
+                            <label className="block text-sm font-semibold text-slate-700 mb-2">Search</label>
+                            <input
+                                type="text"
+                                placeholder="Search business name..."
+                                value={search}
+                                onChange={e => setSearch(e.target.value)}
+                                className="w-full border-2 border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                            />
+                        </div>
 
-                    {/* Status Filter */}
-                    <select
-                        value={statusFilter}
-                        onChange={e => setStatusFilter(e.target.value)}
-                        className="border rounded px-3 py-1 text-sm"
-                    >
-                        <option value="ALL">All Status</option>
-                        <option value="Lead Generated">Lead Generated</option>
-                        <option value="Contacted">Contacted</option>
-                        <option value="Meeting Scheduled">Meeting Scheduled</option>
-                        <option value="Proposal Sent">Proposal Sent</option>
-                        <option value="Negotiation">Negotiation</option>
-                        <option value="Converted">Converted</option>
-                        <option value="Follow-up Required">Follow-up Required</option>
-                        <option value="Not Interested">Not Interested</option>
-                    </select>
+                        <div className="flex-1 min-w-48">
+                            <label className="block text-sm font-semibold text-slate-700 mb-2">Status</label>
+                            <select
+                                value={statusFilter}
+                                onChange={e => setStatusFilter(e.target.value)}
+                                className="w-full border-2 border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                            >
+                                <option value="ALL">All Status</option>
+                                <option value="Lead Generated">Lead Generated</option>
+                                <option value="Contacted">Contacted</option>
+                                <option value="Meeting Scheduled">Meeting Scheduled</option>
+                                <option value="Proposal Sent">Proposal Sent</option>
+                                <option value="Negotiation">Negotiation</option>
+                                <option value="Converted">Converted</option>
+                                <option value="Follow-up Required">Follow-up Required</option>
+                                <option value="Not Interested">Not Interested</option>
+                            </select>
+                        </div>
 
-                    {/* Employee Filter */}
-                    <select
-                        value={employeeFilter}
-                        onChange={e => setEmployeeFilter(e.target.value)}
-                        className="border rounded px-3 py-1 text-sm"
-                    >
-                        <option value="ALL">All Employees</option>
-                        {uniqueEmployees.map(emp => (
-                            <option key={emp} value={emp}>
-                                {emp}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                    <div className="bg-white rounded shadow p-4">
-                        <p className="text-xs text-gray-500">Total Clients</p>
-                        <p className="text-2xl font-semibold">{totalClients}</p>
-                    </div>
-
-                    <div className="bg-white rounded shadow p-4">
-                        <p className="text-xs text-gray-500">Active Clients</p>
-                        <p className="text-2xl font-semibold">{activeClients}</p>
-                    </div>
-
-                    <div className="bg-white rounded shadow p-4">
-                        <p className="text-xs text-gray-500">Converted</p>
-                        <p className="text-2xl font-semibold text-green-600">
-                            {convertedClients}
-                        </p>
+                        <div className="flex-1 min-w-48">
+                            <label className="block text-sm font-semibold text-slate-700 mb-2">Employee</label>
+                            <select
+                                value={employeeFilter}
+                                onChange={e => setEmployeeFilter(e.target.value)}
+                                className="w-full border-2 border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                            >
+                                <option value="ALL">All Employees</option>
+                                {uniqueEmployees.map(emp => (
+                                    <option key={emp} value={emp}>
+                                        {emp}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
                 </div>
 
-                <div className="bg-white rounded shadow overflow-x-auto">
-                    <table className="w-full text-sm">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-4 py-3 text-left">Business</th>
-                                <th className="px-4 py-3 text-left">Employee</th>
-                                <th className="px-4 py-3 text-left">Client ID</th>
-                                <th className="px-4 py-3 text-left">Industry</th>
-                                <th className="px-4 py-3 text-left">Location</th>
-                                <th className="px-4 py-3 text-left">Status</th>
-                                <th className="px-4 py-3 text-left">Updated</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredClients.map((c) => (
-                                <tr key={c.clientId} className="border-t">
-                                    <td className="px-4 py-3 font-medium">
-                                        {c.businessName}
-                                    </td>
-                                    <td className="px-4 py-3">{c.employeeId}</td>
-                                    <td className="px-4 py-3">{c.clientId}</td>
-                                    <td className="px-4 py-3">{c.industry}</td>
-                                    <td className="px-4 py-3">{c.location}</td>
-                                    <td className="px-4 py-3">
-                                        <span className="px-2 py-1 rounded bg-gray-200 text-xs">
-                                            {c.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-4 py-3 text-gray-500">
-                                        {c.updatedAt}
-                                    </td>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
+                        <p className="text-sm font-medium text-slate-600 mb-2">Total Clients</p>
+                        <p className="text-4xl font-bold text-blue-600">{totalClients}</p>
+                    </div>
+
+                    <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
+                        <p className="text-sm font-medium text-slate-600 mb-2">Active Clients</p>
+                        <p className="text-4xl font-bold text-amber-600">{activeClients}</p>
+                    </div>
+
+                    <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
+                        <p className="text-sm font-medium text-slate-600 mb-2">Converted</p>
+                        <p className="text-4xl font-bold text-green-600">{convertedClients}</p>
+                    </div>
+                </div>
+
+                <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-200">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                            <thead className="bg-gradient-to-r from-blue-50 to-blue-100 border-b border-slate-200">
+                                <tr>
+                                    <th className="px-6 py-4 text-left font-semibold text-slate-700">Business</th>
+                                    <th className="px-6 py-4 text-left font-semibold text-slate-700">Employee</th>
+                                    <th className="px-6 py-4 text-left font-semibold text-slate-700">Client ID</th>
+                                    <th className="px-6 py-4 text-left font-semibold text-slate-700">Industry</th>
+                                    <th className="px-6 py-4 text-left font-semibold text-slate-700">Location</th>
+                                    <th className="px-6 py-4 text-left font-semibold text-slate-700">Status</th>
+                                    <th className="px-6 py-4 text-left font-semibold text-slate-700">Updated</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className="divide-y divide-slate-200">
+                                {filteredClients.map((c) => (
+                                    <tr key={c.clientId} className="hover:bg-slate-50 transition-colors duration-200">
+                                        <td className="px-6 py-4 font-medium text-slate-900">
+                                            {c.businessName}
+                                        </td>
+                                        <td className="px-6 py-4 text-slate-600">{c.employeeId}</td>
+                                        <td className="px-6 py-4 text-slate-600">{c.clientId}</td>
+                                        <td className="px-6 py-4 text-slate-600">{c.industry}</td>
+                                        <td className="px-6 py-4 text-slate-600">{c.location}</td>
+                                        <td className="px-6 py-4">
+                                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                                                {c.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-slate-500 text-sm">
+                                            {c.updatedAt}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

@@ -59,40 +59,67 @@ export default function Login(): JSX.Element {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center">
-            <div className="p-8 rounded-lg shadow-md w-full max-w-sm">
-                <div className="flex justify-center relative w-44 h-32 mx-auto mb-6">
-                    <Image
-                        src="/s-vyapaar.jpeg"
-                        alt="Smart Vyapaar Logo"
-                        fill
-                        className="mx-auto mb-4"
-                    />
+        <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-500 to-purple-600 flex items-center justify-center p-4">
+            <div className="w-full max-w-md">
+                <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
+                    {/* Header */}
+                    <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-12 text-center">
+                        <div className="flex justify-center relative w-40 h-28 mx-auto mb-6">
+                            <Image
+                                src="/s-vyapaar.jpeg"
+                                alt="Smart Vyapaar Logo"
+                                fill
+                                className="object-contain"
+                            />
+                        </div>
+                        <h1 className="text-3xl font-bold text-white">
+                            <span>Smart</span>&nbsp;<span>Vyapaar</span>
+                        </h1>
+                        <p className="text-blue-100 text-sm mt-2">Employee Management System</p>
+                    </div>
+
+                    {/* Form */}
+                    <div className="p-8">
+                        <p className='text-center text-slate-600 mb-6 text-sm'>
+                            Sign in with your Employee ID
+                        </p>
+
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-2">
+                                    Employee ID
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter your Employee ID"
+                                    value={employeeId}
+                                    onChange={(e) => setEmployeeId(e.target.value)}
+                                    className="w-full border-2 border-slate-200 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300"
+                                    disabled={loading}
+                                />
+                            </div>
+
+                            <button
+                                onClick={login}
+                                disabled={loading || !employeeId.trim()}
+                                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold py-3 rounded-lg hover:from-blue-700 hover:to-blue-800 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 active:scale-95"
+                            >
+                                {loading ? (
+                                    <span className="flex items-center justify-center gap-2">
+                                        <span className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                                        Signing in...
+                                    </span>
+                                ) : (
+                                    'Sign In'
+                                )}
+                            </button>
+                        </div>
+
+                        <p className="text-center text-slate-500 text-xs mt-6">
+                            Secure login • Your data is protected
+                        </p>
+                    </div>
                 </div>
-                <h1 className="text-4xl font-semibold text-center mb-9">
-                    <span className='text-[rgba(32,70,121,1)]'>Smart</span>&nbsp;
-                    <span className='text-[rgba(235,50,58,1)]'>Vyapaar</span> Attendance Login
-                </h1>
-
-                <p className='text-center mb-6'>
-                    Login to mark your Smart Vyapaar Attendance
-                </p>
-
-                <input
-                    type="text"
-                    placeholder="Employee ID"
-                    value={employeeId}
-                    onChange={(e) => setEmployeeId(e.target.value)}
-                    className="w-full border border-gray-300 rounded px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-
-                <button
-                    onClick={login}
-                    disabled={loading}
-                    className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-60"
-                >
-                    {loading ? 'Logging in...' : 'Login'}
-                </button>
             </div>
         </div>
     )

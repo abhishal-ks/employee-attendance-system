@@ -3,6 +3,7 @@
 import { JSX, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
+import DashboardTopBar from '@/components/DashboardTopBar'
 
 interface Client {
     clientId: string
@@ -110,17 +111,10 @@ export default function MyClients(): JSX.Element {
         axios
             .post(
                 process.env.NEXT_PUBLIC_APPS_SCRIPT_URL as string,
-                // {
-                //     params: {
-                //         type: 'GET_MY_CLIENTS',
-                //         employeeId,
-                //     }
-                // }
                 JSON.stringify({
                     type: 'GET_MY_CLIENTS',
                     employeeId,
                 }),
-                // { headers: { 'Content-Type': 'text/plain' } }
             )
             .then((res) => {
                 if (res.data.success) {
@@ -158,8 +152,6 @@ export default function MyClients(): JSX.Element {
             const data = await res.json()
 
             if (data.success) {
-                // re-fetch clients OR optimistically update image URL if returned
-                // simplest: reload list
                 const r = await axios.post(
                     process.env.NEXT_PUBLIC_APPS_SCRIPT_URL as string,
                     JSON.stringify({ type: 'GET_MY_CLIENTS', employeeId })
@@ -171,59 +163,78 @@ export default function MyClients(): JSX.Element {
         }
     }
 
-
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center text-gray-500">
-                Loading clients...
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+                    <p className="text-slate-600">Loading your clients...</p>
+                </div>
             </div>
         )
     }
 
     return (
-        <div className="min-h-screen bg-gray-100 px-6 py-8">
-            <div className="max-w-5xl mx-auto">
-                <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-xl font-semibold">My Clients</h1>
-
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+            <DashboardTopBar />
+            
+            <div className="max-w-7xl mx-auto px-4 py-8">
+                <div className="mb-8 flex justify-between items-center">
+                    <div>
+                        <h1 className="text-3xl font-bold text-slate-900">My Clients</h1>
+                        <p className="text-slate-600 mt-1">Manage and track your business clients</p>
+                    </div>
                     <button
-                        onClick={() => router.push('/dashboard')}
-                        className="text-sm text-blue-600 hover:underline"
+                        onClick={() => router.back()}
+                        className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors duration-300 text-sm font-medium flex items-center gap-2"
                     >
-                        ← Back to Dashboard
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                        Back
                     </button>
                 </div>
 
                 {clients.length === 0 ? (
-                    <div className="bg-white p-6 rounded shadow text-gray-600">
-                        No clients added yet.
+                    <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-12 text-center">
+                        <svg className="w-16 h-16 text-slate-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.856-1.487M15 10a3 3 0 11-6 0 3 3 0 016 0zM16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        <p className="text-slate-600 text-lg font-medium">No clients added yet</p>
+                        <p className="text-slate-500 text-sm mt-2">Start by adding your first business client</p>
+                        <button
+                            onClick={() => router.push('/dashboard/add-client')}
+                            className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300 font-medium"
+                        >
+                            Add Your First Client
+                        </button>
                     </div>
                 ) : (
-                    <div className="bg-white rounded shadow overflow-x-auto">
-                        <table className="w-full text-sm">
-                            <thead className="bg-gray-50 text-gray-700">
-                                <tr>
-                                    <th className="px-4 py-3 text-left">Business</th>
-                                    <th className="px-4 py-3 text-left">Industry</th>
-                                    <th className="px-4 py-3 text-left">Location</th>
-                                    <th className="px-4 py-3 text-left">Status</th>
-                                    <th className="px-4 py-3 text-left">Image</th>
-                                    <th className="px-4 py-3 text-left">Description / Notes</th>
-                                    <th className="px-4 py-3 text-left">Updated</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {clients.map((c) => (
-                                    <tr key={c.clientId} className="border-t">
-                                        <td className="px-4 py-3 font-medium">
-                                            {c.businessName}
-                                        </td>
-                                        <td className="px-4 py-3">{c.industry}</td>
-                                        <td className="px-4 py-3">{c.location}</td>
-                                        <td className="px-4 py-3">
-                                            <div className="flex gap-2 items-center">
+                    <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-200">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm">
+                                <thead className="bg-gradient-to-r from-blue-50 to-blue-100 border-b border-slate-200">
+                                    <tr>
+                                        <th className="px-6 py-4 text-left font-semibold text-slate-700">Business</th>
+                                        <th className="px-6 py-4 text-left font-semibold text-slate-700">Industry</th>
+                                        <th className="px-6 py-4 text-left font-semibold text-slate-700">Location</th>
+                                        <th className="px-6 py-4 text-left font-semibold text-slate-700">Status</th>
+                                        <th className="px-6 py-4 text-left font-semibold text-slate-700">Image</th>
+                                        <th className="px-6 py-4 text-left font-semibold text-slate-700">Notes</th>
+                                        <th className="px-6 py-4 text-left font-semibold text-slate-700">Updated</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-200">
+                                    {clients.map((c) => (
+                                        <tr key={c.clientId} className="hover:bg-slate-50 transition-colors duration-200">
+                                            <td className="px-6 py-4 font-medium text-slate-900">
+                                                {c.businessName}
+                                            </td>
+                                            <td className="px-6 py-4 text-slate-600">{c.industry}</td>
+                                            <td className="px-6 py-4 text-slate-600">{c.location}</td>
+                                            <td className="px-6 py-4">
                                                 <select
-                                                    className="border rounded px-2 py-1 text-xs"
+                                                    className="border-2 border-slate-200 rounded-lg px-3 py-1 text-xs font-medium focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                                                     value={c.status}
                                                     onChange={(e) => updateStatus(c.clientId, e.target.value)}
                                                 >
@@ -231,78 +242,80 @@ export default function MyClients(): JSX.Element {
                                                         <option key={s} value={s}>{s}</option>
                                                     ))}
                                                 </select>
-                                            </div>
-                                        </td>
-                                        {/* <td className="px-4 py-3">
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                capture="environment"
-                                                onChange={(e) =>
-                                                    uploadClientImage(c.clientId, e.target.files?.[0])
-                                                }
-                                            />
-                                        </td> */}
-                                        <td className="px-4 py-3">
-                                            <div className="flex flex-col gap-2">
-                                                {c.imageUrl ? (
-                                                    <a href={c.imageUrl} target="_blank" rel="noopener noreferrer">
-                                                        <img
-                                                            src={c.imageUrl}
-                                                            alt="Client"
-                                                            className="h-16 w-24 object-cover rounded border hover:opacity-90"
-                                                        />
-                                                    </a>
-                                                ) : (
-                                                    <span className="text-xs text-gray-400">No image</span>
-                                                )}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex flex-col gap-2">
+                                                    {c.imageUrl ? (
+                                                        <a href={c.imageUrl} target="_blank" rel="noopener noreferrer">
+                                                            <img
+                                                                src={c.imageUrl}
+                                                                alt="Client"
+                                                                className="h-16 w-24 object-cover rounded-lg border border-slate-200 hover:opacity-90 transition-opacity"
+                                                            />
+                                                        </a>
+                                                    ) : (
+                                                        <div className="h-16 w-24 rounded-lg border-2 border-dashed border-slate-300 flex items-center justify-center bg-slate-50">
+                                                            <span className="text-xs text-slate-400">No image</span>
+                                                        </div>
+                                                    )}
 
-                                                <label className="text-xs text-blue-600 cursor-pointer hover:underline">
-                                                    {uploadingId === c.clientId ? 'Uploading…' : 'Upload / Replace'}
-                                                    <input
-                                                        type="file"
-                                                        accept="image/*"
-                                                        capture="environment"
-                                                        className="hidden"
-                                                        disabled={uploadingId === c.clientId}
+                                                    <label className="text-xs text-blue-600 cursor-pointer hover:text-blue-700 font-semibold">
+                                                        {uploadingId === c.clientId ? (
+                                                            <span className="flex items-center gap-1">
+                                                                <span className="inline-block animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></span>
+                                                                Uploading…
+                                                            </span>
+                                                        ) : (
+                                                            'Upload / Replace'
+                                                        )}
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            capture="environment"
+                                                            className="hidden"
+                                                            disabled={uploadingId === c.clientId}
+                                                            onChange={(e) =>
+                                                                uploadClientImage(c.clientId, e.target.files?.[0])
+                                                            }
+                                                        />
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="max-w-xs">
+                                                    <textarea
+                                                        className="w-full border-2 border-slate-200 rounded-lg px-3 py-2 text-xs font-medium focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all resize-none"
+                                                        placeholder="Add notes..."
+                                                        rows={2}
+                                                        value={c.description || ''}
                                                         onChange={(e) =>
-                                                            uploadClientImage(c.clientId, e.target.files?.[0])
+                                                            setClients(prev =>
+                                                                prev.map(p =>
+                                                                    p.clientId === c.clientId
+                                                                        ? { ...p, description: e.target.value }
+                                                                        : p
+                                                                )
+                                                            )
                                                         }
                                                     />
-                                                </label>
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-3" colSpan={5}>
-                                            <textarea
-                                                className="w-full border rounded px-2 py-1 text-xs"
-                                                placeholder="Client description / notes"
-                                                value={c.description || ''}
-                                                onChange={(e) =>
-                                                    setClients(prev =>
-                                                        prev.map(p =>
-                                                            p.clientId === c.clientId
-                                                                ? { ...p, description: e.target.value }
-                                                                : p
-                                                        )
-                                                    )
-                                                }
-                                            />
-                                            <button
-                                                onClick={() =>
-                                                    updateStatus(c.clientId, c.status, c.description || '')
-                                                }
-                                                className="mt-1 text-xs text-blue-600 hover:underline"
-                                            >
-                                                Save description
-                                            </button>
-                                        </td>
-                                        <td className="px-4 py-3 text-gray-500">
-                                            {c.updatedAt}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                                    <button
+                                                        onClick={() =>
+                                                            updateStatus(c.clientId, c.status, c.description || '')
+                                                        }
+                                                        className="mt-2 text-xs text-blue-600 hover:text-blue-700 font-semibold"
+                                                    >
+                                                        Save Notes
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4 text-slate-500 text-sm whitespace-nowrap">
+                                                {c.updatedAt}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
             </div>
