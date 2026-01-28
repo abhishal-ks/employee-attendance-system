@@ -74,6 +74,33 @@ export default function Dashboard(): JSX.Element {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {/* Attendance */}
+                    <button
+                        onClick={() => router.push('/attendance')}
+                        className="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 p-8 text-left border border-slate-100 hover:border-green-200"
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div className="relative z-10">
+                            <div className="p-3 bg-green-100 rounded-lg w-fit group-hover:bg-green-200 transition-colors duration-300 mb-4">
+                                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <h2 className="text-xl font-bold text-slate-900 mb-2">
+                                Attendance
+                            </h2>
+                            <p className="text-slate-600 text-sm leading-relaxed">
+                                Mark or view today's attendance
+                            </p>
+                            <div className="mt-6 flex items-center text-green-600 group-hover:text-green-700 font-semibold text-sm">
+                                Mark Now
+                                <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </div>
+                        </div>
+                    </button>
+
                     {/* Add Client */}
                     <button
                         onClick={() => router.push('/dashboard/add-client')}
@@ -121,33 +148,6 @@ export default function Dashboard(): JSX.Element {
                             </p>
                             <div className="mt-6 flex items-center text-amber-600 group-hover:text-amber-700 font-semibold text-sm">
                                 View All
-                                <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                </svg>
-                            </div>
-                        </div>
-                    </button>
-
-                    {/* Attendance */}
-                    <button
-                        onClick={() => router.push('/attendance')}
-                        className="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 p-8 text-left border border-slate-100 hover:border-green-200"
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <div className="relative z-10">
-                            <div className="p-3 bg-green-100 rounded-lg w-fit group-hover:bg-green-200 transition-colors duration-300 mb-4">
-                                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                            <h2 className="text-xl font-bold text-slate-900 mb-2">
-                                Attendance
-                            </h2>
-                            <p className="text-slate-600 text-sm leading-relaxed">
-                                Mark or view today's attendance
-                            </p>
-                            <div className="mt-6 flex items-center text-green-600 group-hover:text-green-700 font-semibold text-sm">
-                                Mark Now
                                 <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                 </svg>
