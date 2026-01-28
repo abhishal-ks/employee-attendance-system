@@ -11,6 +11,8 @@ interface Attendance {
     employeeName: string
     checkIn: string
     status: string
+    latitude?: string
+    longitude?: string
 }
 
 export default function AdminAttendance() {
@@ -50,7 +52,7 @@ export default function AdminAttendance() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+            <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
                 <AdminTopBar />
                 <div className="flex items-center justify-center h-96">
                     <div className="text-center">
@@ -63,9 +65,9 @@ export default function AdminAttendance() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+        <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
             <AdminTopBar />
-            
+
             <div className="max-w-7xl mx-auto px-4 py-8">
                 <div className="mb-8">
                     <div className="flex justify-between items-center">
@@ -95,13 +97,14 @@ export default function AdminAttendance() {
                 <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-200">
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
-                            <thead className="bg-gradient-to-r from-blue-50 to-blue-100 border-b border-slate-200">
+                            <thead className="bg-linear-to-r from-blue-50 to-blue-100 border-b border-slate-200">
                                 <tr>
                                     <th className="px-6 py-4 text-left font-semibold text-slate-700">Date</th>
                                     <th className="px-6 py-4 text-left font-semibold text-slate-700">Employee</th>
                                     <th className="px-6 py-4 text-left font-semibold text-slate-700">Employee ID</th>
                                     <th className="px-6 py-4 text-left font-semibold text-slate-700">Check-in Time</th>
                                     <th className="px-6 py-4 text-left font-semibold text-slate-700">Status</th>
+                                    <th className="px-4 py-3 text-left">Location</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-200">
@@ -115,6 +118,20 @@ export default function AdminAttendance() {
                                             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
                                                 {r.status}
                                             </span>
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            {r.latitude && r.longitude ? (
+                                                <a
+                                                    href={`https://www.google.com/maps?q=${r.latitude},${r.longitude}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-600 text-xs hover:underline"
+                                                >
+                                                    View on Map
+                                                </a>
+                                            ) : (
+                                                <span className="text-xs text-gray-400">N/A</span>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}

@@ -131,7 +131,7 @@ export default function Attendance(): JSX.Element {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50">
+        <div className="min-h-screen bg-linear-to-br from-green-50 to-emerald-50">
             <DashboardTopBar />
 
             <div className="flex flex-col items-center justify-center p-4">
@@ -149,7 +149,7 @@ export default function Attendance(): JSX.Element {
                 <div className="w-full max-w-md mt-8">
                 <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
                     {/* Header */}
-                    <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-8 py-12 text-center">
+                    <div className="bg-linear-to-r from-green-600 to-emerald-600 px-8 py-12 text-center">
                         <div className="flex justify-center relative w-40 h-28 mx-auto mb-6">
                             <Image
                                 src="/s-vyapaar.jpeg"
@@ -190,7 +190,7 @@ export default function Attendance(): JSX.Element {
                             className={`w-full text-white font-semibold py-3 rounded-lg transition-all duration-300 transform ${
                                 marked
                                     ? 'bg-green-600 cursor-default'
-                                    : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 hover:scale-105 active:scale-95'
+                                    : 'bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 hover:scale-105 active:scale-95'
                             } disabled:opacity-60`}
                         >
                             {marked

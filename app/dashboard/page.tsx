@@ -54,7 +54,7 @@ export default function Dashboard(): JSX.Element {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+            <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 flex items-center justify-center">
                 <div className="text-center">
                     <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
                     <p className="text-slate-600">Loading dashboard...</p>
@@ -64,7 +64,7 @@ export default function Dashboard(): JSX.Element {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+        <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
             <DashboardTopBar />
 
             <div className="max-w-6xl mx-auto px-4 py-12">
@@ -79,7 +79,7 @@ export default function Dashboard(): JSX.Element {
                         onClick={() => router.push('/attendance')}
                         className="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 p-8 text-left border border-slate-100 hover:border-green-200"
                     >
-                        <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div className="absolute inset-0 bg-linear-to-br from-green-50 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <div className="relative z-10">
                             <div className="p-3 bg-green-100 rounded-lg w-fit group-hover:bg-green-200 transition-colors duration-300 mb-4">
                                 <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -106,7 +106,7 @@ export default function Dashboard(): JSX.Element {
                         onClick={() => router.push('/dashboard/add-client')}
                         className="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 p-8 text-left border border-slate-100 hover:border-purple-200"
                     >
-                        <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div className="absolute inset-0 bg-linear-to-br from-purple-50 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <div className="relative z-10">
                             <div className="p-3 bg-purple-100 rounded-lg w-fit group-hover:bg-purple-200 transition-colors duration-300 mb-4">
                                 <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -133,7 +133,7 @@ export default function Dashboard(): JSX.Element {
                         onClick={() => router.push('/dashboard/clients')}
                         className="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 p-8 text-left border border-slate-100 hover:border-amber-200"
                     >
-                        <div className="absolute inset-0 bg-gradient-to-br from-amber-50 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div className="absolute inset-0 bg-linear-to-br from-amber-50 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <div className="relative z-10">
                             <div className="p-3 bg-amber-100 rounded-lg w-fit group-hover:bg-amber-200 transition-colors duration-300 mb-4">
                                 <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
