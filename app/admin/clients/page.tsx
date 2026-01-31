@@ -158,23 +158,62 @@ export default function AdminPanel(): JSX.Element {
             ]
             : [28.6139, 77.2090] // Delhi fallback
 
+    // CSV Download Function
+    const downloadCSV = async () => {
+        const employeeId = localStorage.getItem('employeeId')
+        if (!employeeId) return
+
+        const res = await fetch(
+            process.env.NEXT_PUBLIC_APPS_SCRIPT_URL as string,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({
+                    type: 'DOWNLOAD_CLIENTS_CSV',
+                    employeeId,
+                }),
+            }
+        )
+
+        const text = await res.text()
+
+        const blob = new Blob([text], { type: 'text/csv;charset=utf-8;' })
+        const url = URL.createObjectURL(blob)
+
+        const link = document.createElement('a')
+        link.href = url
+        link.download = 'clients.csv'
+        link.click()
+
+        URL.revokeObjectURL(url)
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
             <AdminTopBar />
-            
+
             <div className="max-w-7xl mx-auto px-4 py-8">
-                <div className="flex justify-between items-center mb-8">
+                <div className="flex justify-between items-center gap-2 mb-8">
                     <div>
                         <h1 className="text-3xl font-bold text-slate-900">Client Management</h1>
                         <p className="text-slate-600 mt-1">View and manage all business clients</p>
                     </div>
 
-                    <button
-                        onClick={() => router.push('/admin')}
-                        className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors duration-300 text-sm font-medium"
-                    >
-                        ← Back to Admin
-                    </button>
+                    <div className="flex items-center gap-4 flex-col">
+                        <button
+                            onClick={() => router.push('/admin')}
+                            className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 cursor-pointer transition-colors duration-300 text-sm font-medium"
+                        >
+                            ← Back to Admin
+                        </button>
+
+                        <button
+                            onClick={downloadCSV}
+                            className="text-sm bg-green-600 text-white px-5 py-2 rounded hover:bg-green-700 cursor-pointer font-medium"
+                        >
+                            Download CSV
+                        </button>
+                    </div>
                 </div>
 
                 {clientsWithGPS.length > 0 && (
