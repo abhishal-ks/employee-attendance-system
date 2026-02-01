@@ -152,7 +152,7 @@ export default function Attendance(): JSX.Element {
                     <div className="bg-linear-to-r from-green-600 to-emerald-600 px-8 py-12 text-center">
                         <div className="flex justify-center relative w-40 h-28 mx-auto mb-6">
                             <Image
-                                src="/s-vyapaar.jpeg"
+                                src="/SVLogo.png"
                                 alt="Smart Vyapaar Logo"
                                 fill
                                 className="object-contain"

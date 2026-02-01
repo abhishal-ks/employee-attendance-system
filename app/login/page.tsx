@@ -66,7 +66,7 @@ export default function Login(): JSX.Element {
                     <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-12 text-center">
                         <div className="flex justify-center relative w-40 h-28 mx-auto mb-6">
                             <Image
-                                src="/s-vyapaar.jpeg"
+                                src="/SVLogo.png"
                                 alt="Smart Vyapaar Logo"
                                 fill
                                 className="object-contain"
