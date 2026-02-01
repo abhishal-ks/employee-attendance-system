@@ -63,7 +63,7 @@ export default function Login(): JSX.Element {
             <div className="w-full max-w-md">
                 <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
                     {/* Header */}
-                    <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-12 text-center">
+                    <div className="bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 px-8 py-12 text-center">
                         <div className="flex justify-center relative w-40 h-28 mx-auto mb-6">
                             <Image
                                 src="/SVLogo.png"

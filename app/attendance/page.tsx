@@ -149,7 +149,7 @@ export default function Attendance(): JSX.Element {
                 <div className="w-full max-w-md mt-8">
                 <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
                     {/* Header */}
-                    <div className="bg-linear-to-r from-green-600 to-emerald-600 px-8 py-12 text-center">
+                    <div className="bg-linear-to-br from-green-400 via-green-500 to-emerald-600 px-8 py-12 text-center">
                         <div className="flex justify-center relative w-40 h-28 mx-auto mb-6">
                             <Image
                                 src="/SVLogo.png"
