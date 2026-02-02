@@ -63,8 +63,8 @@ export default function Login(): JSX.Element {
             <div className="w-full max-w-md">
                 <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
                     {/* Header */}
-                    <div className="bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 px-8 py-12 text-center">
-                        <div className="flex justify-center relative w-56 h-28 mx-auto mb-6">
+                    <div className="bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 px-8 py-10 text-center">
+                        <div className="flex justify-center relative w-56 h-32 mx-auto mb-6">
                             <Image
                                 src="/SVLogo.png"
                                 alt="Smart Vyapaar Logo"

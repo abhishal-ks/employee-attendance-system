@@ -76,7 +76,7 @@ export default function Dashboard(): JSX.Element {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {/* Attendance */}
                     <button
-                        onClick={() => router.push('/attendance')}
+                        onClick={() => router.push('/dashboard/attendance')}
                         className="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 p-8 text-left border border-slate-100 hover:border-green-200"
                     >
                         <div className="absolute inset-0 bg-linear-to-br from-green-50 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>

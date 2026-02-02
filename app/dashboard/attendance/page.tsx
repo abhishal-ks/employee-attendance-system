@@ -6,14 +6,16 @@ import { useRouter } from 'next/navigation'
 import { JSX, useEffect, useState } from 'react'
 import DashboardTopBar from '@/components/DashboardTopBar'
 
+type AttendanceStatus = 'Present' | 'Casual Leave' | 'Medical Leave'
+
 interface AttendancePayload {
     type: 'Attendance'
     date: string
     employeeId: string
-    checkIn: string
-    status: 'Present'
-    latitude: number
-    longitude: number
+    checkIn: string | '--:--'
+    status: AttendanceStatus
+    latitude?: number
+    longitude?: number
 }
 
 interface ApiResponse {
@@ -36,6 +38,8 @@ export default function Attendance(): JSX.Element {
 
     const [loading, setLoading] = useState(false);
     const [marked, setMarked] = useState(false);
+
+    const [status, setStatus] = useState<'Present' | 'Casual Leave' | 'Medical Leave'>('Present')
 
     // 🔐 Auth + fetch user info
     useEffect(() => {
@@ -94,19 +98,28 @@ export default function Attendance(): JSX.Element {
         setLoading(true);
 
         try {
-            // 📍 Get location
-            const location = await getLocation()
-
             const now = new Date()
+
+            let latitude = ''
+            let longitude = ''
+            let checkIn = ''
+
+            // 📍 Only get location if marking 'Present'
+            if (status === 'Present') {
+                const location = await getLocation()
+                latitude = String(location.lat)
+                longitude = String(location.lng)
+                checkIn = now.toLocaleTimeString()
+            }
 
             const payload: AttendancePayload = {
                 type: 'Attendance',
                 date: now.toISOString().split('T')[0],
                 employeeId,
-                checkIn: now.toLocaleTimeString(),
-                status: 'Present',
-                latitude: location.lat,
-                longitude: location.lng
+                checkIn,
+                status,
+                latitude: latitude ? Number(latitude) : undefined,
+                longitude: longitude ? Number(longitude) : undefined
             }
 
             const res = await axios.post<ApiResponse>(
@@ -124,7 +137,7 @@ export default function Attendance(): JSX.Element {
             if (res.data.success) setMarked(true);
 
         } catch (err: any) {
-            alert('Location permission is required to mark attendance')
+            alert(`Location permission is required to mark 'Present' attendance`)
         } finally {
             setLoading(false)
         }
@@ -149,8 +162,8 @@ export default function Attendance(): JSX.Element {
                 <div className="w-full max-w-md mt-8">
                     <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
                         {/* Header */}
-                        <div className="bg-linear-to-br from-green-400 via-green-500 to-emerald-600 px-8 py-12 text-center">
-                            <div className="flex justify-center relative w-52 h-28 mx-auto mb-6">
+                        <div className="bg-linear-to-br from-green-400 via-green-500 to-emerald-600 px-8 py-10 text-center">
+                            <div className="flex justify-center relative w-56 h-32 mx-auto mb-6">
                                 <Image
                                     src="/SVLogo.png"
                                     alt="Smart Vyapaar Logo"
@@ -184,12 +197,28 @@ export default function Attendance(): JSX.Element {
                                 </div>
                             )}
 
+                            <div className="mb-6 text-left">
+                                <label className="block text-sm font-medium text-slate-600 mb-2">
+                                    Attendance Type
+                                </label>
+
+                                <select
+                                    value={status}
+                                    onChange={(e) => setStatus(e.target.value as any)}
+                                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500"
+                                >
+                                    <option value="Present">Present</option>
+                                    <option value="Casual Leave">Casual Leave</option>
+                                    <option value="Medical Leave">Medical Leave</option>
+                                </select>
+                            </div>
+
                             <button
                                 onClick={markAttendance}
                                 disabled={loading || marked}
                                 className={`w-full text-white font-semibold py-3 rounded-lg transition-all duration-300 transform ${marked
-                                        ? 'bg-green-600 cursor-default'
-                                        : 'bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 hover:scale-105 active:scale-95'
+                                    ? 'bg-green-600 cursor-default'
+                                    : 'bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 hover:scale-105 active:scale-95'
                                     } disabled:opacity-60`}
                             >
                                 {marked
