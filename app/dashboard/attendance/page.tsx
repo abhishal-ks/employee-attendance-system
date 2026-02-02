@@ -159,10 +159,10 @@ export default function Attendance(): JSX.Element {
                 </button>
 
                 {/* Main Card */}
-                <div className="w-full max-w-md mt-8">
+                <div className="w-full max-w-md mt-4">
                     <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
                         {/* Header */}
-                        <div className="bg-linear-to-br from-green-400 via-green-500 to-emerald-600 px-8 py-10 text-center">
+                        <div className="bg-linear-to-br from-green-400 via-green-500 to-emerald-600 px-6 py-8 text-center">
                             <div className="flex justify-center relative w-56 h-32 mx-auto mb-6">
                                 <Image
                                     src="/SVLogo.png"
@@ -234,7 +234,7 @@ export default function Attendance(): JSX.Element {
                             </button>
 
                             <p className="text-slate-500 text-xs mt-6">
-                                Location access required for attendance marking
+                                Location access required for 'Present' attendance marking
                             </p>
                         </div>
                     </div>
