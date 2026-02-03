@@ -132,7 +132,7 @@ export default function AdminPanel(): JSX.Element {
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
                 <AdminTopBar />
-                <div className="flex items-center justify-center h-96">
+                <div className="flex items-center justify-center h-screen">
                     <div className="text-center">
                         <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                         <p className="mt-4 text-slate-600">Loading clients...</p>
