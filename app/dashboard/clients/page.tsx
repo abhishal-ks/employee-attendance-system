@@ -4,6 +4,7 @@ import { JSX, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import DashboardTopBar from '@/components/DashboardTopBar'
+import { getLocation } from '@/lib/location'
 
 interface Client {
     clientId: string
@@ -52,6 +53,8 @@ export default function MyClients(): JSX.Element {
     const [clients, setClients] = useState<Client[]>([])
     const [loading, setLoading] = useState(true)
     const [uploadingId, setUploadingId] = useState<string | null>(null)
+    const [interactionType, setInteractionType] = useState('Visit')
+    const [interactionNotes, setInteractionNotes] = useState('')
 
     const STATUS_OPTIONS = [
         'Lead Generated',
@@ -160,6 +163,35 @@ export default function MyClients(): JSX.Element {
             }
         } finally {
             setUploadingId(null)
+        }
+    }
+    
+    // Client interaction with geolocation
+    const addInteraction = async (clientId: string) => {
+        const employeeId = localStorage.getItem('employeeId')
+        if (!employeeId) return
+
+        try {
+            const position = await getLocation()
+
+            await axios.post(
+                process.env.NEXT_PUBLIC_APPS_SCRIPT_URL as string,
+                JSON.stringify({
+                    type: 'ADD_CLIENT_INTERACTION',
+                    employeeId,
+                    clientId,
+                    interactionType,
+                    notes: interactionNotes,
+                    latitude: position.lat,
+                    longitude: position.lng,
+                }),
+                { headers: { 'Content-Type': 'text/plain' } }
+            )
+
+            alert('Interaction recorded')
+            setInteractionNotes('')
+        } catch {
+            alert('Failed to record interaction')
         }
     }
 
@@ -305,6 +337,36 @@ export default function MyClients(): JSX.Element {
                                                         className="mt-2 text-xs text-blue-600 hover:text-blue-700 cursor-pointer font-semibold"
                                                     >
                                                         Save Notes
+                                                    </button>
+                                                </div>
+
+                                                <hr className="my-3" />
+
+                                                <div className="flex flex-col gap-2">
+                                                    <select
+                                                        className="border rounded px-2 py-1 text-xs"
+                                                        value={interactionType}
+                                                        onChange={(e) => setInteractionType(e.target.value)}
+                                                    >
+                                                        <option>Visit</option>
+                                                        <option>Call</option>
+                                                        <option>Meeting</option>
+                                                        <option>Follow-up</option>
+                                                        <option>Demo</option>
+                                                    </select>
+
+                                                    <textarea
+                                                        className="w-full border rounded px-2 py-1 text-xs"
+                                                        placeholder="Interaction notes (what happened, next steps)"
+                                                        value={interactionNotes}
+                                                        onChange={(e) => setInteractionNotes(e.target.value)}
+                                                    />
+
+                                                    <button
+                                                        onClick={() => addInteraction(c.clientId)}
+                                                        className="text-xs text-green-600 hover:underline self-start"
+                                                    >
+                                                        + Add Interaction
                                                     </button>
                                                 </div>
                                             </td>

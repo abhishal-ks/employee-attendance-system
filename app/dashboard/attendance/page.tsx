@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { JSX, useEffect, useState } from 'react'
 import DashboardTopBar from '@/components/DashboardTopBar'
+import { getLocation } from '@/lib/location'
 
 type AttendanceStatus = 'Present' | 'Casual Leave' | 'Medical Leave'
 
@@ -64,31 +65,6 @@ export default function Attendance(): JSX.Element {
     const logout = () => {
         localStorage.removeItem('employeeId')
         router.push('/login')
-    }
-
-    const getLocation = (): Promise<{ lat: number; lng: number }> => {
-        return new Promise((resolve, reject) => {
-            if (!navigator.geolocation) {
-                reject(new Error('Geolocation is not supported by your browser'))
-                return
-            }
-
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    resolve({
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    })
-                },
-                (error) => {
-                    reject(error)
-                },
-                {
-                    enableHighAccuracy: false,
-                    timeout: 10000
-                }
-            )
-        })
     }
 
     const markAttendance = async (): Promise<void> => {
