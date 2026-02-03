@@ -1,6 +1,6 @@
 'use client'
 
-import { JSX, useEffect, useState } from 'react'
+import { Fragment, JSX, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import DashboardTopBar from '@/components/DashboardTopBar'
@@ -55,6 +55,8 @@ export default function MyClients(): JSX.Element {
     const [uploadingId, setUploadingId] = useState<string | null>(null)
     const [interactionType, setInteractionType] = useState('Visit')
     const [interactionNotes, setInteractionNotes] = useState('')
+    const [openClientId, setOpenClientId] = useState<string | null>(null)
+    const [search, setSearch] = useState('')
 
     const STATUS_OPTIONS = [
         'Lead Generated',
@@ -165,7 +167,7 @@ export default function MyClients(): JSX.Element {
             setUploadingId(null)
         }
     }
-    
+
     // Client interaction with geolocation
     const addInteraction = async (clientId: string) => {
         const employeeId = localStorage.getItem('employeeId')
@@ -194,6 +196,17 @@ export default function MyClients(): JSX.Element {
             alert('Failed to record interaction')
         }
     }
+
+    // Filtering clients based on search query
+    const filteredClients = clients.filter(c => {
+        const q = search.toLowerCase()
+
+        return (
+            c.businessName.toLowerCase().includes(q) ||
+            c.industry.toLowerCase().includes(q) ||
+            c.location.toLowerCase().includes(q)
+        )
+    })
 
     if (loading) {
         return (
@@ -227,6 +240,148 @@ export default function MyClients(): JSX.Element {
                     </button>
                 </div>
 
+                <div className="mb-4 flex flex-col sm:flex-row gap-3">
+                    <input
+                        type="text"
+                        placeholder="Search by business, industry or location…"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="w-full sm:w-80 border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    />
+                </div>
+
+                {/* 📱 MOBILE VIEW (cards) */}
+                <div className="block md:hidden space-y-4">
+                    {filteredClients.map((c) => (
+                        <div
+                            key={c.clientId}
+                            className="bg-white rounded-xl shadow border border-slate-200 p-4"
+                        >
+                            <div className="flex justify-between items-start mb-2">
+                                <div>
+                                    <h2 className="font-semibold text-slate-900">
+                                        {c.businessName}
+                                    </h2>
+                                    <p className="text-xs text-slate-500">{c.industry}</p>
+                                </div>
+                                <span className="text-xs text-slate-400">
+                                    {c.updatedAt}
+                                </span>
+                            </div>
+
+                            <p className="text-sm text-slate-600 mb-2">
+                                📍 {c.location}
+                            </p>
+
+                            <select
+                                className="w-full border rounded px-2 py-1 text-sm mb-3"
+                                value={c.status}
+                                onChange={(e) => updateStatus(c.clientId, e.target.value)}
+                            >
+                                {STATUS_OPTIONS.map(s => (
+                                    <option key={s} value={s}>{s}</option>
+                                ))}
+                            </select>
+
+                            <div className="flex flex-col gap-2">
+                                <div className="h-20 w-28 rounded-lg border border-slate-300 bg-slate-50 flex items-center justify-center overflow-hidden">
+                                    {c.imageUrl ? (
+                                        <a href={c.imageUrl} target="_blank">
+                                            <img
+                                                src={c.imageUrl}
+                                                alt="Client"
+                                                className="h-full w-full object-cover"
+                                            />
+                                        </a>
+                                    ) : (
+                                        <span className="text-xs text-slate-400">No image</span>
+                                    )}
+                                </div>
+
+                                <label className="text-xs text-blue-600 font-semibold cursor-pointer hover:underline">
+                                    {uploadingId === c.clientId ? 'Uploading…' : 'Upload / Replace'}
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        capture="environment"
+                                        hidden
+                                        disabled={uploadingId === c.clientId}
+                                        onChange={(e) =>
+                                            uploadClientImage(c.clientId, e.target.files?.[0])
+                                        }
+                                    />
+                                </label>
+                            </div>
+
+                            <textarea
+                                className="w-full border rounded px-2 py-1 text-sm mb-2"
+                                rows={2}
+                                placeholder="Notes…"
+                                value={c.description || ''}
+                                onChange={(e) =>
+                                    setClients(prev =>
+                                        prev.map(p =>
+                                            p.clientId === c.clientId
+                                                ? { ...p, description: e.target.value }
+                                                : p
+                                        )
+                                    )
+                                }
+                            />
+
+                            <button
+                                onClick={() =>
+                                    updateStatus(c.clientId, c.status, c.description || '')
+                                }
+                                className="text-xs text-blue-600 font-semibold"
+                            >
+                                Save Notes
+                            </button>
+
+                            <hr className="my-3" />
+
+                            <div className="space-y-2">
+                                <select
+                                    className="w-full border rounded px-2 py-1 text-sm"
+                                    value={interactionType}
+                                    onChange={(e) => setInteractionType(e.target.value)}
+                                >
+                                    <option>Visit</option>
+                                    <option>Call</option>
+                                    <option>Meeting</option>
+                                    <option>Follow-up</option>
+                                    <option>Demo</option>
+                                </select>
+
+                                <textarea
+                                    className="w-full border rounded px-2 py-1 text-sm"
+                                    placeholder="Interaction notes"
+                                    value={interactionNotes}
+                                    onChange={(e) => setInteractionNotes(e.target.value)}
+                                />
+
+                                <button
+                                    onClick={() => addInteraction(c.clientId)}
+                                    className="text-sm text-green-600 font-semibold"
+                                >
+                                    + Add Interaction
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* 🖥 DESKTOP VIEW (your existing table) */}
+                {/* <div className="hidden md:block">
+                    <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-200">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm"> */}
+                {/* 🔽 KEEP YOUR EXISTING <thead> AND <tbody> EXACTLY AS IS */}
+                {/* </table>
+                        </div>
+                    </div>
+                </div> */}
+
                 {clients.length === 0 ? (
                     <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-12 text-center">
                         <svg className="w-16 h-16 text-slate-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -242,141 +397,159 @@ export default function MyClients(): JSX.Element {
                         </button>
                     </div>
                 ) : (
-                    <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-200">
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm">
-                                <thead className="bg-gradient-to-r from-blue-50 to-blue-100 border-b border-slate-200">
-                                    <tr>
-                                        <th className="px-6 py-4 text-left font-semibold text-slate-700">Business</th>
-                                        <th className="px-6 py-4 text-left font-semibold text-slate-700">Industry</th>
-                                        <th className="px-6 py-4 text-left font-semibold text-slate-700">Location</th>
-                                        <th className="px-6 py-4 text-left font-semibold text-slate-700">Status</th>
-                                        <th className="px-6 py-4 text-left font-semibold text-slate-700">Image</th>
-                                        <th className="px-6 py-4 text-left font-semibold text-slate-700">Notes</th>
-                                        <th className="px-6 py-4 text-left font-semibold text-slate-700">Updated</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-200">
-                                    {clients.map((c) => (
-                                        <tr key={c.clientId} className="hover:bg-slate-50 transition-colors duration-200">
-                                            <td className="px-6 py-4 font-medium text-slate-900">
-                                                {c.businessName}
-                                            </td>
-                                            <td className="px-6 py-4 text-slate-600">{c.industry}</td>
-                                            <td className="px-6 py-4 text-slate-600">{c.location}</td>
-                                            <td className="px-6 py-4">
-                                                <select
-                                                    className="border-2 border-slate-200 rounded-lg px-3 py-1 text-xs font-medium focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
-                                                    value={c.status}
-                                                    onChange={(e) => updateStatus(c.clientId, e.target.value)}
-                                                >
-                                                    {STATUS_OPTIONS.map((s) => (
-                                                        <option key={s} value={s}>{s}</option>
-                                                    ))}
-                                                </select>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex flex-col gap-2">
-                                                    {c.imageUrl ? (
-                                                        <a href={c.imageUrl} target="_blank" rel="noopener noreferrer">
-                                                            <img
-                                                                src={c.imageUrl}
-                                                                alt="Client"
-                                                                className="h-16 w-24 object-cover rounded-lg border border-slate-200 hover:opacity-90 transition-opacity"
-                                                            />
-                                                        </a>
-                                                    ) : (
-                                                        <div className="h-16 w-24 rounded-lg border-2 border-dashed border-slate-300 flex items-center justify-center bg-slate-50">
-                                                            <span className="text-xs text-slate-400">No image</span>
-                                                        </div>
-                                                    )}
-
-                                                    <label className="text-xs text-blue-600 cursor-pointer hover:text-blue-700 font-semibold">
-                                                        {uploadingId === c.clientId ? (
-                                                            <span className="flex items-center gap-1">
-                                                                <span className="inline-block animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></span>
-                                                                Uploading…
-                                                            </span>
-                                                        ) : (
-                                                            'Upload / Replace'
-                                                        )}
-                                                        <input
-                                                            type="file"
-                                                            accept="image/*"
-                                                            capture="environment"
-                                                            className="hidden"
-                                                            disabled={uploadingId === c.clientId}
-                                                            onChange={(e) =>
-                                                                uploadClientImage(c.clientId, e.target.files?.[0])
-                                                            }
-                                                        />
-                                                    </label>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="max-w-xs">
-                                                    <textarea
-                                                        className="w-full border-2 border-slate-200 rounded-lg px-3 py-2 text-xs font-medium focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all resize-none"
-                                                        placeholder="Add notes..."
-                                                        rows={2}
-                                                        value={c.description || ''}
-                                                        onChange={(e) =>
-                                                            setClients(prev =>
-                                                                prev.map(p =>
-                                                                    p.clientId === c.clientId
-                                                                        ? { ...p, description: e.target.value }
-                                                                        : p
-                                                                )
-                                                            )
-                                                        }
-                                                    />
-                                                    <button
-                                                        onClick={() =>
-                                                            updateStatus(c.clientId, c.status, c.description || '')
-                                                        }
-                                                        className="mt-2 text-xs text-blue-600 hover:text-blue-700 cursor-pointer font-semibold"
-                                                    >
-                                                        Save Notes
-                                                    </button>
-                                                </div>
-
-                                                <hr className="my-3" />
-
-                                                <div className="flex flex-col gap-2">
-                                                    <select
-                                                        className="border rounded px-2 py-1 text-xs"
-                                                        value={interactionType}
-                                                        onChange={(e) => setInteractionType(e.target.value)}
-                                                    >
-                                                        <option>Visit</option>
-                                                        <option>Call</option>
-                                                        <option>Meeting</option>
-                                                        <option>Follow-up</option>
-                                                        <option>Demo</option>
-                                                    </select>
-
-                                                    <textarea
-                                                        className="w-full border rounded px-2 py-1 text-xs"
-                                                        placeholder="Interaction notes (what happened, next steps)"
-                                                        value={interactionNotes}
-                                                        onChange={(e) => setInteractionNotes(e.target.value)}
-                                                    />
-
-                                                    <button
-                                                        onClick={() => addInteraction(c.clientId)}
-                                                        className="text-xs text-green-600 hover:underline self-start"
-                                                    >
-                                                        + Add Interaction
-                                                    </button>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 text-slate-500 text-sm whitespace-nowrap">
-                                                {c.updatedAt}
-                                            </td>
+                    <div className="hidden md:block">
+                        <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-200">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm">
+                                    <thead className="bg-gradient-to-r from-blue-50 to-blue-100 border-b border-slate-200">
+                                        <tr>
+                                            <th className="px-6 py-4 text-left font-semibold text-slate-700">Business</th>
+                                            <th className="px-6 py-4 text-left font-semibold text-slate-700">Industry</th>
+                                            <th className="px-6 py-4 text-left font-semibold text-slate-700">Location</th>
+                                            <th className="px-6 py-4 text-left font-semibold text-slate-700">Status</th>
+                                            <th className="px-6 py-4 text-left font-semibold text-slate-700">Image</th>
+                                            <th className="px-6 py-4 text-left font-semibold text-slate-700">Notes / Description</th>
+                                            <th className="px-6 py-4 text-left font-semibold text-slate-700">Updated</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-200">
+                                        {filteredClients.length === 0 && (
+                                            <div className="bg-white rounded-xl border p-6 text-center text-slate-500">
+                                                No matching clients found
+                                            </div>
+                                        )}
+
+                                        {filteredClients.map((c) => (
+                                            <Fragment key={c.clientId}>
+                                                {/* SUMMARY ROW */}
+                                                <tr
+                                                    onClick={() =>
+                                                        setOpenClientId(openClientId === c.clientId ? null : c.clientId)
+                                                    }
+                                                    className="cursor-pointer hover:bg-slate-50 transition"
+                                                >
+                                                    <td className="px-6 py-4 font-medium">{c.businessName}</td>
+                                                    <td className="px-6 py-4">{c.industry}</td>
+                                                    <td className="px-6 py-4">{c.location}</td>
+                                                    <td className="px-6 py-4">{c.status}</td>
+
+                                                    {/* PLACEHOLDER CELLS (important) */}
+                                                    <td className="px-6 py-4 text-slate-400 text-xs">🔽</td>
+                                                    <td className="px-6 py-4 text-slate-400 text-xs">🔽</td>
+
+                                                    <td className="px-6 py-4 text-xs text-slate-500">
+                                                        {c.updatedAt}
+                                                    </td>
+                                                </tr>
+
+                                                {/* EXPANDED ROW */}
+                                                {openClientId === c.clientId && (
+                                                    <tr>
+                                                        <td colSpan={7} className="bg-slate-50 px-6 py-5">
+                                                            <div className="grid grid-cols-3 gap-6">
+
+                                                                {/* IMAGE */}
+                                                                <div>
+                                                                    <div className="h-24 w-32 rounded border border-slate-300 bg-white flex items-center justify-center overflow-hidden mb-2">
+                                                                        {c.imageUrl ? (
+                                                                            <a href={c.imageUrl} target="_blank">
+                                                                                <img
+                                                                                    src={c.imageUrl}
+                                                                                    className="h-full w-full object-cover"
+                                                                                />
+                                                                            </a>
+                                                                        ) : (
+                                                                            <span className="text-xs text-slate-400">
+                                                                                No image
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+
+                                                                    <label className="text-xs text-blue-600 font-semibold cursor-pointer hover:underline">
+                                                                        {uploadingId === c.clientId ? 'Uploading…' : 'Upload / Replace'}
+                                                                        <input
+                                                                            type="file"
+                                                                            hidden
+                                                                            accept="image/*"
+                                                                            onChange={(e) =>
+                                                                                uploadClientImage(c.clientId, e.target.files?.[0])
+                                                                            }
+                                                                        />
+                                                                    </label>
+                                                                </div>
+
+                                                                {/* NOTES */}
+                                                                <div>
+                                                                    <label className="text-xs text-slate-500 font-semibold">
+                                                                        Notes
+                                                                    </label>
+                                                                    <textarea
+                                                                        className="w-full border rounded px-2 py-1 text-sm mt-1"
+                                                                        rows={3}
+                                                                        value={c.description || ''}
+                                                                        onChange={(e) =>
+                                                                            setClients(prev =>
+                                                                                prev.map(p =>
+                                                                                    p.clientId === c.clientId
+                                                                                        ? { ...p, description: e.target.value }
+                                                                                        : p
+                                                                                )
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                    <button
+                                                                        onClick={() =>
+                                                                            updateStatus(c.clientId, c.status, c.description || '')
+                                                                        }
+                                                                        className="mt-2 text-xs text-blue-600 font-semibold hover:underline"
+                                                                    >
+                                                                        Save Notes
+                                                                    </button>
+                                                                </div>
+
+                                                                {/* INTERACTION */}
+                                                                <div>
+                                                                    <label className="text-xs text-slate-500 font-semibold">
+                                                                        Add Interaction
+                                                                    </label>
+
+                                                                    <select
+                                                                        className="w-full border rounded px-2 py-1 text-sm mt-1"
+                                                                        value={interactionType}
+                                                                        onChange={(e) => setInteractionType(e.target.value)}
+                                                                    >
+                                                                        <option>Visit</option>
+                                                                        <option>Call</option>
+                                                                        <option>Meeting</option>
+                                                                        <option>Follow-up</option>
+                                                                        <option>Demo</option>
+                                                                    </select>
+
+                                                                    <textarea
+                                                                        className="w-full border rounded px-2 py-1 text-sm mt-2"
+                                                                        rows={2}
+                                                                        placeholder="What happened?"
+                                                                        value={interactionNotes}
+                                                                        onChange={(e) => setInteractionNotes(e.target.value)}
+                                                                    />
+
+                                                                    <button
+                                                                        onClick={() => addInteraction(c.clientId)}
+                                                                        className="mt-2 text-xs text-green-600 font-semibold hover:underline"
+                                                                    >
+                                                                        + Record Interaction
+                                                                    </button>
+                                                                </div>
+
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </Fragment>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 )}
