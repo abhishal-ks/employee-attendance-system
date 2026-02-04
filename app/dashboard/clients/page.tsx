@@ -57,6 +57,8 @@ export default function MyClients(): JSX.Element {
     const [interactionNotes, setInteractionNotes] = useState('')
     const [openClientId, setOpenClientId] = useState<string | null>(null)
     const [search, setSearch] = useState('')
+    // const [expandedClient, setExpandedClient] = useState<string | null>(null)
+    const [expandedId, setExpandedId] = useState<string | null>(null)
 
     const STATUS_OPTIONS = [
         'Lead Generated',
@@ -258,137 +260,149 @@ export default function MyClients(): JSX.Element {
                         </div>
                     )}
 
-                    {filteredClients.map((c) => (
-                        <div
-                            key={c.clientId}
-                            className="bg-white rounded-xl shadow border border-slate-200 p-4"
-                        >
-                            <div className="flex justify-between items-start mb-2">
-                                <div>
-                                    <h2 className="font-semibold text-slate-900">
-                                        {c.businessName}
-                                    </h2>
-                                    <p className="text-xs text-slate-500">{c.industry}</p>
-                                </div>
-                                <span className="text-xs text-slate-400">
-                                    {c.updatedAt}
-                                </span>
-                            </div>
+                    {filteredClients.map((c) => {
+                        const isOpen = expandedId === c.clientId
 
-                            <p className="text-sm text-slate-600 mb-2">
-                                📍 {c.location}
-                            </p>
-
-                            <select
-                                className="w-full border rounded px-2 py-1 text-sm mb-3"
-                                value={c.status}
-                                onChange={(e) => updateStatus(c.clientId, e.target.value)}
+                        return (
+                            <div
+                                key={c.clientId}
+                                className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
                             >
-                                {STATUS_OPTIONS.map(s => (
-                                    <option key={s} value={s}>{s}</option>
-                                ))}
-                            </select>
-
-                            <div className="flex flex-col gap-2">
-                                <div className="h-20 w-28 rounded-lg border border-slate-300 bg-slate-50 flex items-center justify-center overflow-hidden">
-                                    {c.imageUrl ? (
-                                        <a href={c.imageUrl} target="_blank">
-                                            <img
-                                                src={c.imageUrl}
-                                                alt="Client"
-                                                className="h-full w-full object-cover"
-                                            />
-                                        </a>
-                                    ) : (
-                                        <span className="text-xs text-slate-400">No image</span>
-                                    )}
-                                </div>
-
-                                <label className="text-xs text-blue-600 font-semibold cursor-pointer hover:underline">
-                                    {uploadingId === c.clientId ? 'Uploading…' : 'Upload / Replace'}
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        capture="environment"
-                                        hidden
-                                        disabled={uploadingId === c.clientId}
-                                        onChange={(e) =>
-                                            uploadClientImage(c.clientId, e.target.files?.[0])
-                                        }
-                                    />
-                                </label>
-                            </div>
-
-                            <textarea
-                                className="w-full border rounded px-2 py-1 text-sm mt-8 mb-1"
-                                rows={2}
-                                placeholder="Notes…"
-                                value={c.description || ''}
-                                onChange={(e) =>
-                                    setClients(prev =>
-                                        prev.map(p =>
-                                            p.clientId === c.clientId
-                                                ? { ...p, description: e.target.value }
-                                                : p
-                                        )
-                                    )
-                                }
-                            />
-
-                            <button
-                                onClick={() =>
-                                    updateStatus(c.clientId, c.status, c.description || '')
-                                }
-                                className="text-xs text-blue-600 font-semibold"
-                            >
-                                Save Notes
-                            </button>
-
-                            <hr className="my-3" />
-
-                            <div className="space-y-2">
-                                <select
-                                    className="w-full border rounded px-2 py-1 text-sm"
-                                    value={interactionType}
-                                    onChange={(e) => setInteractionType(e.target.value)}
-                                >
-                                    <option>Visit</option>
-                                    <option>Call</option>
-                                    <option>Meeting</option>
-                                    <option>Follow-up</option>
-                                    <option>Demo</option>
-                                </select>
-
-                                <textarea
-                                    className="w-full border rounded px-2 py-1 text-sm"
-                                    placeholder="Interaction notes"
-                                    value={interactionNotes}
-                                    onChange={(e) => setInteractionNotes(e.target.value)}
-                                />
-
+                                {/* ===== Card Header (always visible) ===== */}
                                 <button
-                                    onClick={() => addInteraction(c.clientId)}
-                                    className="text-sm text-green-600 font-semibold"
+                                    onClick={() =>
+                                        setExpandedId(isOpen ? null : c.clientId)
+                                    }
+                                    className="w-full flex justify-between items-center px-4 py-3 text-left"
                                 >
-                                    + Add Interaction
+                                    <div>
+                                        <p className="font-semibold text-slate-900">
+                                            {c.businessName}
+                                        </p>
+                                        <p className="text-xs text-slate-500">
+                                            {c.location}
+                                        </p>
+                                    </div>
+
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-xs px-2 py-1 rounded bg-blue-100 text-blue-700">
+                                            {c.status}
+                                        </span>
+
+                                        <span className="text-lg">
+                                            {isOpen ? '▲' : '▼'}
+                                        </span>
+                                    </div>
                                 </button>
+
+                                {/* ===== Collapsible Body ===== */}
+                                {isOpen && (
+                                    <div className="border-t px-4 py-4 space-y-4 bg-slate-50">
+                                        {/* Image */}
+                                        <div>
+                                            {c.imageUrl ? (
+                                                <img
+                                                    src={c.imageUrl}
+                                                    className="w-full h-40 object-cover rounded"
+                                                />
+                                            ) : (
+                                                <div className="h-40 border-2 border-dashed rounded flex items-center justify-center text-xs text-slate-400">
+                                                    No image
+                                                </div>
+                                            )}
+
+                                            <label className="text-xs text-blue-600 cursor-pointer mt-2 inline-block">
+                                                Upload / Replace
+                                                <input
+                                                    type="file"
+                                                    className="hidden"
+                                                    accept="image/*"
+                                                    capture="environment"
+                                                    onChange={(e) =>
+                                                        uploadClientImage(
+                                                            c.clientId,
+                                                            e.target.files?.[0]
+                                                        )
+                                                    }
+                                                />
+                                            </label>
+                                        </div>
+
+                                        {/* Notes */}
+                                        <div>
+                                            <textarea
+                                                className="w-full border rounded px-3 py-2 text-xs"
+                                                placeholder="Client notes"
+                                                rows={3}
+                                                value={c.description || ''}
+                                                onChange={(e) =>
+                                                    setClients(prev =>
+                                                        prev.map(p =>
+                                                            p.clientId === c.clientId
+                                                                ? { ...p, description: e.target.value }
+                                                                : p
+                                                        )
+                                                    )
+                                                }
+                                            />
+                                            <button
+                                                onClick={() =>
+                                                    updateStatus(
+                                                        c.clientId,
+                                                        c.status,
+                                                        c.description || ''
+                                                    )
+                                                }
+                                                className="text-xs text-blue-600 mt-1"
+                                            >
+                                                Save notes
+                                            </button>
+                                        </div>
+
+                                        {/* Interaction */}
+                                        <div className="space-y-2">
+                                            <select
+                                                className="border rounded px-2 py-1 text-xs w-full"
+                                                value={interactionType}
+                                                onChange={(e) =>
+                                                    setInteractionType(e.target.value)
+                                                }
+                                            >
+                                                <option>Visit</option>
+                                                <option>Call</option>
+                                                <option>Meeting</option>
+                                                <option>Follow-up</option>
+                                            </select>
+
+                                            <textarea
+                                                className="w-full border rounded px-2 py-1 text-xs"
+                                                placeholder="Interaction notes"
+                                                value={interactionNotes}
+                                                onChange={(e) =>
+                                                    setInteractionNotes(e.target.value)
+                                                }
+                                            />
+
+                                            <button
+                                                onClick={() => addInteraction(c.clientId)}
+                                                className="text-xs text-green-600"
+                                            >
+                                                + Add interaction
+                                            </button>
+                                        </div>
+
+                                        <p className="text-xs text-slate-400">
+                                            Updated: {c.updatedAt}
+                                        </p>
+                                    </div>
+                                )}
                             </div>
-                        </div>
-                    ))}
+                        )
+                    })}
                 </div>
 
-                {/* 🖥 DESKTOP VIEW (your existing table) */}
-                {/* <div className="hidden md:block">
-                    <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-200">
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm"> */}
-                {/* 🔽 KEEP YOUR EXISTING <thead> AND <tbody> EXACTLY AS IS */}
-                {/* </table>
-                        </div>
-                    </div>
-                </div> */}
-
-                {clients.length === 0 ? (
+                {/* 💻 DESKTOP VIEW (table) */}
+                {filteredClients.length === 0 ? (
                     <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-12 text-center">
                         <svg className="w-16 h-16 text-slate-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.856-1.487M15 10a3 3 0 11-6 0 3 3 0 016 0zM16 12a4 4 0 11-8 0 4 4 0 018 0z" />
