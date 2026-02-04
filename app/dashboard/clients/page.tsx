@@ -252,6 +252,12 @@ export default function MyClients(): JSX.Element {
 
                 {/* 📱 MOBILE VIEW (cards) */}
                 <div className="block md:hidden space-y-4">
+                    {filteredClients.length === 0 && (
+                        <div className="bg-white rounded-xl border p-6 text-center text-slate-500">
+                            No matching clients found
+                        </div>
+                    )}
+
                     {filteredClients.map((c) => (
                         <div
                             key={c.clientId}
@@ -314,7 +320,7 @@ export default function MyClients(): JSX.Element {
                             </div>
 
                             <textarea
-                                className="w-full border rounded px-2 py-1 text-sm mb-2"
+                                className="w-full border rounded px-2 py-1 text-sm mt-8 mb-1"
                                 rows={2}
                                 placeholder="Notes…"
                                 value={c.description || ''}
