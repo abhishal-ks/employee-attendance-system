@@ -65,6 +65,8 @@ export default function AdminPanel(): JSX.Element {
     const [employeeFilter, setEmployeeFilter] = useState<string>('ALL')
     const [search, setSearch] = useState('')
 
+    const [interactions, setInteractions] = useState<any[]>([])
+
     useEffect(() => {
         if (typeof window !== 'undefined') {
             fixLeafletIcons()
@@ -101,6 +103,18 @@ export default function AdminPanel(): JSX.Element {
                 }
             })
             .finally(() => setLoading(false))
+
+        // Fetch interactions
+        axios.post(
+            process.env.NEXT_PUBLIC_APPS_SCRIPT_URL as string,
+            JSON.stringify({
+                type: 'GET_CLIENT_INTERACTIONS_ADMIN',
+                employeeId
+            })
+        ).then(res => {
+            if (res.data.success) setInteractions(res.data.interactions || [])
+        })
+
     }, [router])
 
     // Derived stats
@@ -130,7 +144,7 @@ export default function AdminPanel(): JSX.Element {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+            <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
                 <AdminTopBar />
                 <div className="flex items-center justify-center h-screen">
                     <div className="text-center">
@@ -189,7 +203,7 @@ export default function AdminPanel(): JSX.Element {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+        <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
             <AdminTopBar />
 
             <div className="max-w-7xl mx-auto px-4 py-8">
@@ -209,7 +223,7 @@ export default function AdminPanel(): JSX.Element {
 
                         <button
                             onClick={downloadCSV}
-                            className="text-sm bg-green-600 text-white px-5 py-2 rounded hover:bg-green-700 cursor-pointer font-medium"
+                            className="text-sm bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 cursor-pointer font-medium"
                         >
                             Download CSV
                         </button>
@@ -316,10 +330,56 @@ export default function AdminPanel(): JSX.Element {
                     </div>
                 </div>
 
+                {/* ================= INTERACTIONS ================= */}
+
+                <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 mb-8">
+                    <h2 className="text-lg font-bold text-slate-900 mb-4">
+                        Client Interactions
+                    </h2>
+
+                    {interactions.length === 0 ? (
+                        <p className="text-sm text-gray-500">No interactions recorded yet.</p>
+                    ) : (
+                        <div className="space-y-3 max-h-100 overflow-y-auto">
+                            {interactions.map((i, idx) => (
+                                <div
+                                    key={idx}
+                                    className="border rounded-lg p-3 text-sm bg-slate-50"
+                                >
+                                    <div className="font-medium text-slate-900">
+                                        {i.employeeName} → {i.businessName}
+                                    </div>
+
+                                    <div className="text-gray-600 text-xs">
+                                        {i.interactionType} • {i.date} {i.time}
+                                    </div>
+
+                                    {i.notes && (
+                                        <div className="mt-1 text-gray-700">
+                                            {i.notes}
+                                        </div>
+                                    )}
+
+                                    {!isNaN(Number(i.latitude)) && !isNaN(Number(i.longitude)) && (
+                                        <a
+                                            href={`https://www.google.com/maps?q=${i.latitude},${i.longitude}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-600 text-xs hover:underline mt-1 inline-block"
+                                        >
+                                            View Location
+                                        </a>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
                 <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-200">
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
-                            <thead className="bg-gradient-to-r from-blue-50 to-blue-100 border-b border-slate-200">
+                            <thead className="bg-linear-to-r from-blue-50 to-blue-100 border-b border-slate-200">
                                 <tr>
                                     <th className="px-6 py-4 text-left font-semibold text-slate-700">Business</th>
                                     <th className="px-6 py-4 text-left font-semibold text-slate-700">Employee</th>
