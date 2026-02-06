@@ -64,8 +64,10 @@ export default function AdminPanel(): JSX.Element {
     const [statusFilter, setStatusFilter] = useState<string>('ALL')
     const [employeeFilter, setEmployeeFilter] = useState<string>('ALL')
     const [search, setSearch] = useState('')
-
+    // Interactions state
     const [interactions, setInteractions] = useState<any[]>([])
+    // Tab state
+    const [activeTab, setActiveTab] = useState<'clients' | 'interactions'>('clients')
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -330,90 +332,116 @@ export default function AdminPanel(): JSX.Element {
                     </div>
                 </div>
 
+                {/* Tab changer */}
+                <div className="flex gap-2 mb-6">
+                    {['clients', 'interactions'].map(tab => (
+                        <button
+                            key={tab}
+                            onClick={() => setActiveTab(tab as any)}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === tab
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-white border hover:bg-slate-50'
+                                }`}
+                        >
+                            {tab.toUpperCase()}
+                        </button>
+                    ))}
+                </div>
+
                 {/* ================= INTERACTIONS ================= */}
 
-                <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 mb-8">
-                    <h2 className="text-lg font-bold text-slate-900 mb-4">
-                        Client Interactions
-                    </h2>
+                {activeTab === 'interactions' && (
+                    <div>
+                        {/* interactions UI */}
+                        <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 mb-8">
+                            <h2 className="text-lg font-bold text-slate-900 mb-4">
+                                Client Interactions
+                            </h2>
 
-                    {interactions.length === 0 ? (
-                        <p className="text-sm text-gray-500">No interactions recorded yet.</p>
-                    ) : (
-                        <div className="space-y-3 max-h-100 overflow-y-auto">
-                            {interactions.map((i, idx) => (
-                                <div
-                                    key={idx}
-                                    className="border rounded-lg p-3 text-sm bg-slate-50"
-                                >
-                                    <div className="font-medium text-slate-900">
-                                        {i.employeeName} → {i.businessName}
-                                    </div>
-
-                                    <div className="text-gray-600 text-xs">
-                                        {i.interactionType} • {i.date} {i.time}
-                                    </div>
-
-                                    {i.notes && (
-                                        <div className="mt-1 text-gray-700">
-                                            {i.notes}
-                                        </div>
-                                    )}
-
-                                    {!isNaN(Number(i.latitude)) && !isNaN(Number(i.longitude)) && (
-                                        <a
-                                            href={`https://www.google.com/maps?q=${i.latitude},${i.longitude}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-blue-600 text-xs hover:underline mt-1 inline-block"
+                            {interactions.length === 0 ? (
+                                <p className="text-sm text-gray-500">No interactions recorded yet.</p>
+                            ) : (
+                                <div className="space-y-3 max-h-100 overflow-y-auto">
+                                    {interactions.map((i, idx) => (
+                                        <div
+                                            key={idx}
+                                            className="border rounded-lg p-3 text-sm bg-slate-50"
                                         >
-                                            View Location
-                                        </a>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
+                                            <div className="font-medium text-slate-900">
+                                                {i.employeeName} → {i.businessName}
+                                            </div>
 
-                <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-200">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                            <thead className="bg-linear-to-r from-blue-50 to-blue-100 border-b border-slate-200">
-                                <tr>
-                                    <th className="px-6 py-4 text-left font-semibold text-slate-700">Business</th>
-                                    <th className="px-6 py-4 text-left font-semibold text-slate-700">Employee</th>
-                                    <th className="px-6 py-4 text-left font-semibold text-slate-700">Client ID</th>
-                                    <th className="px-6 py-4 text-left font-semibold text-slate-700">Industry</th>
-                                    <th className="px-6 py-4 text-left font-semibold text-slate-700">Location</th>
-                                    <th className="px-6 py-4 text-left font-semibold text-slate-700">Status</th>
-                                    <th className="px-6 py-4 text-left font-semibold text-slate-700">Updated</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-200">
-                                {filteredClients.map((c) => (
-                                    <tr key={c.clientId} className="hover:bg-slate-50 transition-colors duration-200">
-                                        <td className="px-6 py-4 font-medium text-slate-900">
-                                            {c.businessName}
-                                        </td>
-                                        <td className="px-6 py-4 text-slate-600">{c.employeeId}</td>
-                                        <td className="px-6 py-4 text-slate-600">{c.clientId}</td>
-                                        <td className="px-6 py-4 text-slate-600">{c.industry}</td>
-                                        <td className="px-6 py-4 text-slate-600">{c.location}</td>
-                                        <td className="px-6 py-4">
-                                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
-                                                {c.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 text-slate-500 text-sm">
-                                            {c.updatedAt}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                            <div className="text-gray-600 text-xs">
+                                                {i.interactionType} • {i.date} {i.time}
+                                            </div>
+
+                                            {i.notes && (
+                                                <div className="mt-1 text-gray-700">
+                                                    {i.notes}
+                                                </div>
+                                            )}
+
+                                            {!isNaN(Number(i.latitude)) && !isNaN(Number(i.longitude)) && (
+                                                <a
+                                                    href={`https://www.google.com/maps?q=${i.latitude},${i.longitude}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-600 text-xs hover:underline mt-1 inline-block"
+                                                >
+                                                    View Location
+                                                </a>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
-                </div>
+                )}
+
+                {activeTab === 'clients' && (
+                    <div>
+                        {/* clients table */}
+                        <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-200">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm">
+                                    <thead className="bg-linear-to-r from-blue-50 to-blue-100 border-b border-slate-200">
+                                        <tr>
+                                            <th className="px-6 py-4 text-left font-semibold text-slate-700">Business</th>
+                                            <th className="px-6 py-4 text-left font-semibold text-slate-700">Employee</th>
+                                            <th className="px-6 py-4 text-left font-semibold text-slate-700">Client ID</th>
+                                            <th className="px-6 py-4 text-left font-semibold text-slate-700">Industry</th>
+                                            <th className="px-6 py-4 text-left font-semibold text-slate-700">Location</th>
+                                            <th className="px-6 py-4 text-left font-semibold text-slate-700">Status</th>
+                                            <th className="px-6 py-4 text-left font-semibold text-slate-700">Updated</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-200">
+                                        {filteredClients.map((c) => (
+                                            <tr key={c.clientId} className="hover:bg-slate-50 transition-colors duration-200">
+                                                <td className="px-6 py-4 font-medium text-slate-900">
+                                                    {c.businessName}
+                                                </td>
+                                                <td className="px-6 py-4 text-slate-600">{c.employeeId}</td>
+                                                <td className="px-6 py-4 text-slate-600">{c.clientId}</td>
+                                                <td className="px-6 py-4 text-slate-600">{c.industry}</td>
+                                                <td className="px-6 py-4 text-slate-600">{c.location}</td>
+                                                <td className="px-6 py-4">
+                                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                                                        {c.status}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 text-slate-500 text-sm">
+                                                    {c.updatedAt}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     )
