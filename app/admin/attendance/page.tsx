@@ -50,11 +50,14 @@ export default function AdminAttendance() {
         ? records.filter(r => r.date === filterDate)
         : records
 
+    // Sorted attendance records by date (newest first)
+    const sortedRecords = [...filtered].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+
     if (loading) {
         return (
             <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
                 <AdminTopBar />
-                <div className="flex items-center justify-center h-96">
+                <div className="flex items-center justify-center h-screen">
                     <div className="text-center">
                         <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                         <p className="mt-4 text-slate-600">Loading attendance records...</p>
@@ -108,14 +111,16 @@ export default function AdminAttendance() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-200">
-                                {filtered.map((r, i) => (
+                                {sortedRecords.map((r, i) => (
                                     <tr key={i} className="hover:bg-slate-50 transition-colors duration-200">
                                         <td className="px-6 py-4 text-slate-900">{r.date}</td>
                                         <td className="px-6 py-4 text-slate-900 font-medium">{r.employeeName}</td>
                                         <td className="px-6 py-4 text-slate-600">{r.employeeId}</td>
                                         <td className="px-6 py-4 text-slate-600">{r.checkIn}</td>
                                         <td className="px-6 py-4">
-                                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
+                                            ${r.status === 'Present' ? 'bg-green-100 text-green-800' : r.status === 'Casual Leave' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}
+                                            >
                                                 {r.status}
                                             </span>
                                         </td>
