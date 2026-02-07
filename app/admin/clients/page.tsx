@@ -204,6 +204,17 @@ export default function AdminPanel(): JSX.Element {
         URL.revokeObjectURL(url)
     }
 
+    // Sort interactions by date & time (newest first)
+    const sortedInteractions = [...interactions].sort(
+        (a, b) => new Date(`${b.date} ${b.time}`).getTime() -
+            new Date(`${a.date} ${a.time}`).getTime()
+    )
+
+    // Sort clients by updatedAt (newest first)
+    const sortedClients = [...filteredClients].sort(
+        (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    )
+
     return (
         <div className="min-h-screen bg-linear-to-br from-slate-50 to-slate-100">
             <AdminTopBar />
@@ -232,6 +243,7 @@ export default function AdminPanel(): JSX.Element {
                     </div>
                 </div>
 
+                {/* map with GPS coordinates */}
                 {clientsWithGPS.length > 0 && (
                     <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-200 mb-8">
                         <MapContainer
@@ -264,57 +276,7 @@ export default function AdminPanel(): JSX.Element {
                     </div>
                 )}
 
-                <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 mb-8">
-                    <h2 className="text-lg font-bold text-slate-900 mb-4">Filters</h2>
-                    <div className="flex flex-wrap gap-4">
-                        <div className="flex-1 min-w-64">
-                            <label className="block text-sm font-semibold text-slate-700 mb-2">Search</label>
-                            <input
-                                type="text"
-                                placeholder="Search business name..."
-                                value={search}
-                                onChange={e => setSearch(e.target.value)}
-                                className="w-full border-2 border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
-                            />
-                        </div>
-
-                        <div className="flex-1 min-w-48">
-                            <label className="block text-sm font-semibold text-slate-700 mb-2">Status</label>
-                            <select
-                                value={statusFilter}
-                                onChange={e => setStatusFilter(e.target.value)}
-                                className="w-full border-2 border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
-                            >
-                                <option value="ALL">All Status</option>
-                                <option value="Lead Generated">Lead Generated</option>
-                                <option value="Contacted">Contacted</option>
-                                <option value="Meeting Scheduled">Meeting Scheduled</option>
-                                <option value="Proposal Sent">Proposal Sent</option>
-                                <option value="Negotiation">Negotiation</option>
-                                <option value="Converted">Converted</option>
-                                <option value="Follow-up Required">Follow-up Required</option>
-                                <option value="Not Interested">Not Interested</option>
-                            </select>
-                        </div>
-
-                        <div className="flex-1 min-w-48">
-                            <label className="block text-sm font-semibold text-slate-700 mb-2">Employee</label>
-                            <select
-                                value={employeeFilter}
-                                onChange={e => setEmployeeFilter(e.target.value)}
-                                className="w-full border-2 border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
-                            >
-                                <option value="ALL">All Employees</option>
-                                {uniqueEmployees.map(emp => (
-                                    <option key={emp} value={emp}>
-                                        {emp}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
+                {/* Stats cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
                         <p className="text-sm font-medium text-slate-600 mb-2">Total Clients</p>
@@ -340,7 +302,7 @@ export default function AdminPanel(): JSX.Element {
                             onClick={() => setActiveTab(tab as any)}
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition ${activeTab === tab
                                 ? 'bg-blue-600 text-white'
-                                : 'bg-white border hover:bg-slate-50'
+                                : 'bg-slate-200 hover:bg-blue-200'
                                 }`}
                         >
                             {tab.toUpperCase()}
@@ -358,14 +320,14 @@ export default function AdminPanel(): JSX.Element {
                                 Client Interactions
                             </h2>
 
-                            {interactions.length === 0 ? (
+                            {sortedInteractions.length === 0 ? (
                                 <p className="text-sm text-gray-500">No interactions recorded yet.</p>
                             ) : (
                                 <div className="space-y-3 max-h-100 overflow-y-auto">
-                                    {interactions.map((i, idx) => (
+                                    {sortedInteractions.map((i, idx) => (
                                         <div
                                             key={idx}
-                                            className="border rounded-lg p-3 text-sm bg-slate-50"
+                                            className="rounded-lg p-3 text-sm bg-sky-50 border border-sky-200 shadow-sm hover:shadow-md transition-shadow duration-300"
                                         >
                                             <div className="font-medium text-slate-900">
                                                 {i.employeeName} → {i.businessName}
@@ -401,6 +363,58 @@ export default function AdminPanel(): JSX.Element {
 
                 {activeTab === 'clients' && (
                     <div>
+                        {/* Filters */}
+                        <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 mb-8">
+                            <h2 className="text-lg font-bold text-slate-900 mb-4">Filters</h2>
+                            <div className="flex flex-wrap gap-4">
+                                <div className="flex-1 min-w-64">
+                                    <label className="block text-sm font-semibold text-slate-700 mb-2">Search</label>
+                                    <input
+                                        type="text"
+                                        placeholder="Search business name..."
+                                        value={search}
+                                        onChange={e => setSearch(e.target.value)}
+                                        className="w-full border-2 border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                                    />
+                                </div>
+
+                                <div className="flex-1 min-w-48">
+                                    <label className="block text-sm font-semibold text-slate-700 mb-2">Status</label>
+                                    <select
+                                        value={statusFilter}
+                                        onChange={e => setStatusFilter(e.target.value)}
+                                        className="w-full border-2 border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                                    >
+                                        <option value="ALL">All Status</option>
+                                        <option value="Lead Generated">Lead Generated</option>
+                                        <option value="Contacted">Contacted</option>
+                                        <option value="Meeting Scheduled">Meeting Scheduled</option>
+                                        <option value="Proposal Sent">Proposal Sent</option>
+                                        <option value="Negotiation">Negotiation</option>
+                                        <option value="Converted">Converted</option>
+                                        <option value="Follow-up Required">Follow-up Required</option>
+                                        <option value="Not Interested">Not Interested</option>
+                                    </select>
+                                </div>
+
+                                <div className="flex-1 min-w-48">
+                                    <label className="block text-sm font-semibold text-slate-700 mb-2">Employee</label>
+                                    <select
+                                        value={employeeFilter}
+                                        onChange={e => setEmployeeFilter(e.target.value)}
+                                        className="w-full border-2 border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                                    >
+                                        <option value="ALL">All Employees</option>
+                                        {uniqueEmployees.map(emp => (
+                                            <option key={emp} value={emp}>
+                                                {emp}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
                         {/* clients table */}
                         <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-200">
                             <div className="overflow-x-auto">
@@ -417,7 +431,7 @@ export default function AdminPanel(): JSX.Element {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-200">
-                                        {filteredClients.map((c) => (
+                                        {sortedClients.map((c) => (
                                             <tr key={c.clientId} className="hover:bg-slate-50 transition-colors duration-200">
                                                 <td className="px-6 py-4 font-medium text-slate-900">
                                                     {c.businessName}
