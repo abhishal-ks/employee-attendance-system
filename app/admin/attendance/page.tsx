@@ -142,7 +142,7 @@ export default function AdminAttendance() {
                                         </td>
                                         <td className="px-4 py-3">
                                             {r.deviceId && (
-                                                <span className="text-xs text-gray-400">Device: {r.deviceId}</span>
+                                                <span className="text-xs text-gray-400">{r.deviceId}</span>
                                             )}
                                         </td>
                                     </tr>
