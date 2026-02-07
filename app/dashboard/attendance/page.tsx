@@ -17,6 +17,7 @@ interface AttendancePayload {
     status: AttendanceStatus
     latitude?: number
     longitude?: number
+    deviceId?: string
 }
 
 interface ApiResponse {
@@ -39,8 +40,14 @@ export default function Attendance(): JSX.Element {
 
     const [loading, setLoading] = useState(false);
     const [marked, setMarked] = useState(false);
-
+    
     const [status, setStatus] = useState<'Present' | 'Casual Leave' | 'Medical Leave'>('Present')
+
+    useEffect(() => {
+        if (!localStorage.getItem('deviceId')) {
+            localStorage.setItem('deviceId', crypto.randomUUID())
+        }
+    }, [])
 
     // 🔐 Auth + fetch user info
     useEffect(() => {
@@ -95,7 +102,8 @@ export default function Attendance(): JSX.Element {
                 checkIn,
                 status,
                 latitude: latitude ? Number(latitude) : undefined,
-                longitude: longitude ? Number(longitude) : undefined
+                longitude: longitude ? Number(longitude) : undefined,
+                deviceId: localStorage.getItem('deviceId') || undefined
             }
 
             const res = await axios.post<ApiResponse>(

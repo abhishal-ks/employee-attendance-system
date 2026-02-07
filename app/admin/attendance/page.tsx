@@ -13,6 +13,7 @@ interface Attendance {
     status: string
     latitude?: string
     longitude?: string
+    deviceId?: string
 }
 
 export default function AdminAttendance() {
@@ -108,6 +109,7 @@ export default function AdminAttendance() {
                                     <th className="px-6 py-4 text-left font-semibold text-slate-700">Check-in Time</th>
                                     <th className="px-6 py-4 text-left font-semibold text-slate-700">Status</th>
                                     <th className="px-4 py-3 text-left">Location</th>
+                                    <th className="px-4 py-3 text-left">Device</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-200">
@@ -136,6 +138,11 @@ export default function AdminAttendance() {
                                                 </a>
                                             ) : (
                                                 <span className="text-xs text-gray-400">N/A</span>
+                                            )}
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            {r.deviceId && (
+                                                <span className="text-xs text-gray-400">Device: {r.deviceId}</span>
                                             )}
                                         </td>
                                     </tr>
