@@ -44,11 +44,11 @@ export default function Attendance(): JSX.Element {
     const [status, setStatus] = useState<'Present' | 'Casual Leave' | 'Medical Leave'>('Present')
 
     useEffect(() => {
-        let id = localStorage.getItem('deviceId')
+        let deviceId = localStorage.getItem('deviceId')
 
-        if (!id) {
-            id = crypto.randomUUID()
-            localStorage.setItem('deviceId', id)
+        if (!deviceId) {
+            deviceId = crypto.randomUUID()
+            localStorage.setItem('deviceId', deviceId)
         }
     }, [])
 
